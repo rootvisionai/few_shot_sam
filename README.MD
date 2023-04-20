@@ -35,7 +35,7 @@ The following dependencies are necessary for the FEWSAM:
 pip install opencv-python PyYAML
 ```
 
-Now download the [model checkpoints](#model-checkpoints):
+Now download the model checkpoints:
 
 More accurate <<< [VIT-H](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth) 
 | [VIT-L](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth) 
