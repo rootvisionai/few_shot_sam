@@ -1,0 +1,16 @@
+data:
+  support_dir: "support_images"
+  query_dir: "query_images"
+  output_dir: "results"
+  format: "jpg"
+
+labeling:
+  mask: 1
+  polygon: 1
+  bounding_box: 1
+  label: "roi"
+
+window_size: [512, 512]
+model: vit_h # Faster <<< vit_b, vit_l, vit_h >>> More accurate
+threshold: 0.8
+device: "cuda"
