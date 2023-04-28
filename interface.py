@@ -1,4 +1,28 @@
 import cv2
+import PySimpleGUI as sg
+
+
+def relabel_or_continue():
+    sg.theme('DarkAmber')   # Add a touch of color
+    # All the stuff inside your window.
+    layout = [
+        [sg.Text('Please write the label name below ->')],
+        [sg.Text('Label name:'), sg.InputText()],
+        [sg.Button('CONTINUE'), sg.Button('CANCEL'), sg.Button('END')]
+    ]
+
+    # Create the Window
+    window = sg.Window('Continue labeling with another label:', layout)
+    # Event Loop to process "events" and get the "values" of the inputs
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED:
+            event = 'CANCEL'
+        print(f'You entered {values[0]}')
+        break
+
+    window.close()
+    return values[0], event
 
 def click_on_point(img):
     # create a window and display the image
@@ -30,3 +54,6 @@ def click_on_point(img):
         return [(x[i], y[i]) for i in range(len(x))]
     else:
         return [None]
+
+if __name__ == "__main__":
+    relabel_or_continue()
