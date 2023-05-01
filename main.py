@@ -28,15 +28,13 @@ if __name__=="__main__":
     sam.to(device=cfg.device)
 
     predictor = SamPredictor(sam)
-
-    xy_list = []
-    labels_str = []
+    support_package = {}
     while True:
         # Support Images: Load, point, extract
         s_image_paths = glob.glob(os.path.join(cfg.data.support_dir, f"*.{cfg.data.format}"))
         embeddings = []
-        for qip in s_image_paths:
-            image = np.asarray(Image.open(qip))
+        for sip in s_image_paths:
+            image = np.asarray(Image.open(sip))
             image = cv2.resize(image, (cfg.window_size[0], cfg.window_size[1]))
             points = interface.click_on_point(img=image)
             if not None in points:
@@ -44,9 +42,22 @@ if __name__=="__main__":
                     embedding = utils.get_embedding(predictor, image, pt)
                     embeddings.append(embedding)
 
-        # Query Images: Load, extract, match, segment
-        q_image_paths = glob.glob(os.path.join(cfg.data.query_dir, f"*.{cfg.data.format}"))
-        for cnt, qip in enumerate(q_image_paths):
+        label, event = interface.relabel_or_continue()
+        support_package[label] = embeddings
+        if event == "END":
+            break
+        elif event == "CANCEL":
+            break
+        else:
+            pass
+
+    # Query Images: Load, extract, match
+    q_image_paths = glob.glob(os.path.join(cfg.data.query_dir, f"*.{cfg.data.format}"))
+    for cnt, qip in enumerate(q_image_paths):
+        masks = []
+        bboxes = []
+        labels_str = []
+        for label in support_package:
             print(f"[{cnt}/{len(q_image_paths)}] Loading {qip} >>>")
             q_image = np.asarray(Image.open(qip))
             q_image_shape = q_image.shape
@@ -55,7 +66,7 @@ if __name__=="__main__":
             features = predictor.features
 
             similarity_maps = []
-            for i, embedding in enumerate(embeddings):
+            for i, embedding in enumerate(support_package[label]):
                 similarity_map = utils.get_similarity(embedding, features)
                 similarity_map = torch.where(similarity_map > cfg.threshold, 1., 0.)
                 similarity_maps.append(similarity_map)
@@ -71,44 +82,30 @@ if __name__=="__main__":
                 final_shape=q_image.shape[0:2]
             )
 
-            xy_list.append(np.array([[xy["x"], xy["y"]]]).astype(int))
+            l_ = np.ones((1,))
+            mask_, scores, logits = predictor.predict(
+                point_coords=np.array([[xy["x"], xy["y"]]]).astype(int),
+                point_labels=l_,
+                multimask_output=True,
+            )
+            mask_ = mask_.astype(np.uint8)
+            mask_ = cv2.resize(mask_[0], (q_image_shape[1], q_image_shape[0]))
+            masks.append(mask_)
 
-        label, event = interface.relabel_or_continue()
-        labels_str.append(label)
-        if event == "END":
-            break
-        elif event == "CANCEL":
-            labels_str = labels_str[0:-1]
-            break
-        else:
-            pass
+            # create xml file from the coordinates
+            coordinates = np.nonzero(mask_)
+            y0, y1, x0, x1 = coordinates[0].min(), coordinates[0].max(), coordinates[1].min(), coordinates[1].max()
+            bboxes.append([x0, y0, x1, y1])
 
-    masks = []
-    bboxes = []
-    for i in range(len(labels_str)):
-        l_ = np.ones((1,))
+            labels_str.append(label)
 
-        mask_, scores, logits = predictor.predict(
-            point_coords=xy_list[i],
-            point_labels=l_,
-            multimask_output=True,
+        masks_transformed = utils.merge_multilabel_masks(masks, COLORMAP=cfg.COLORMAP)
+
+        cv2.imwrite(
+            qip.replace(cfg.data.query_dir,
+                        cfg.data.output_dir).replace(f".{cfg.data.format}",
+                                                     ".png"),
+            masks_transformed * 255
         )
-        mask_ = mask_.astype(np.uint8)
-        mask_ = cv2.resize(mask_[0], (q_image_shape[1], q_image_shape[0]))
-        masks.append(mask_)
 
-        # create xml file from the coordinates
-        coordinates = np.nonzero(mask_)
-        y0, y1, x0, x1 = coordinates[0].min(), coordinates[0].max(), coordinates[1].min(), coordinates[1].max()
-        bboxes.append([x0, y0, x1, y1])
-
-    pascal_voc.create_file_multilabel(image_name=qip, labels=labels_str, bboxes=bboxes)
-
-    masks_transformed = utils.merge_multilabel_masks(masks, COLORMAP=cfg.COLORMAP)
-
-    cv2.imwrite(
-        qip.replace(cfg.data.query_dir,
-                    cfg.data.output_dir).replace(f".{cfg.data.format}",
-                                                 ".png"),
-        masks_transformed * 255
-    )
+        pascal_voc.create_file_multilabel(image_name=qip, labels=labels_str, bboxes=bboxes)
