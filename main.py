@@ -34,7 +34,10 @@ if __name__=="__main__":
         s_image_paths = glob.glob(os.path.join(cfg.data.support_dir, f"*.{cfg.data.format}"))
         embeddings = []
         for sip in s_image_paths:
-            image = np.asarray(Image.open(sip))
+            image_ = Image.open(sip)
+            image = Image.new("RGB", image_.size)
+            image.paste(image_)
+            image = np.asarray(image)
             image = cv2.resize(image, (cfg.window_size[0], cfg.window_size[1]))
             points = interface.click_on_point(img=image)
             if not None in points:
@@ -53,16 +56,22 @@ if __name__=="__main__":
 
     # Query Images: Load, extract, match
     q_image_paths = glob.glob(os.path.join(cfg.data.query_dir, f"*.{cfg.data.format}"))
+    q_image_paths += glob.glob(os.path.join(cfg.data.query_dir, "**", f"*.{cfg.data.format}"))
+    q_image_paths += glob.glob(os.path.join(cfg.data.query_dir, "**", "**", f"*.{cfg.data.format}"))
+    q_image_paths += glob.glob(os.path.join(cfg.data.query_dir, "**", "**", "**", f"*.{cfg.data.format}"))
     for cnt, qip in enumerate(q_image_paths):
         masks = []
         bboxes = []
         labels_str = []
         for label in support_package:
             print(f"[{cnt}/{len(q_image_paths)}] Loading {qip} >>>")
-            q_image = np.asarray(Image.open(qip))
-            q_image_shape = q_image.shape
-            q_image = cv2.resize(q_image, (cfg.window_size[0], cfg.window_size[1]))
-            predictor.set_image(q_image)
+            image_ = Image.open(qip)
+            image = Image.new("RGB", image_.size)
+            image.paste(image_)
+            image = np.asarray(image)
+            q_image_shape = image.shape
+            image = cv2.resize(image, (cfg.window_size[0], cfg.window_size[1]))
+            predictor.set_image(image)
             features = predictor.features
 
             similarity_maps = []
@@ -73,13 +82,14 @@ if __name__=="__main__":
 
             similarity_maps = torch.stack(similarity_maps, dim=0)
             similarity_maps = torch.einsum('bij->ij', similarity_maps)
+            similarity_maps = similarity_maps/similarity_maps.max()
             print(f"HIGHEST SIMILARITY: {torch.max(similarity_maps).item()}")
 
             yx = (similarity_maps == torch.max(similarity_maps)).nonzero()
             xy = utils.adapt_point(
                 {"x": yx[0, 1].item(), "y": yx[0, 0].item()},
                 initial_shape=features.shape[-2:],
-                final_shape=q_image.shape[0:2]
+                final_shape=image.shape[0:2]
             )
 
             l_ = np.ones((1,))
@@ -101,10 +111,15 @@ if __name__=="__main__":
 
         masks_transformed = utils.merge_multilabel_masks(masks, COLORMAP=cfg.COLORMAP)
 
+        mask_path = qip.replace(
+            cfg.data.query_dir,
+            cfg.data.output_dir).replace(f".{cfg.data.format}", ".png")
+        mask_dir = "\\".join(mask_path.split("\\")[:-1])
+        if not os.path.isdir(mask_dir):
+            os.makedirs(mask_dir)
+
         cv2.imwrite(
-            qip.replace(cfg.data.query_dir,
-                        cfg.data.output_dir).replace(f".{cfg.data.format}",
-                                                     ".png"),
+            mask_path,
             masks_transformed * 255
         )
 
