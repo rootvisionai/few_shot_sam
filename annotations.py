@@ -1,9 +1,13 @@
 import xml.etree.ElementTree as ET
 import os
-
 import xml.dom.minidom
+import cv2
+import numpy as np
+import json
+import base64
 
-def create_file_singlelabel(xmin, ymin, xmax, ymax, image_name, label):
+
+def create_xml_singlelabel(xmin, ymin, xmax, ymax, image_name, label):
     """
     Create Pascal VOC XML file from given input and save it with indentation.
 
@@ -49,7 +53,7 @@ def create_file_singlelabel(xmin, ymin, xmax, ymax, image_name, label):
 
     print(f'Saved Pascal VOC XML file with indentation: {xml_filename}')
 
-def create_file_multilabel(image_name, labels, bboxes):
+def create_xml_multilabel(image_name, labels, bboxes):
     annotation = ET.Element('annotation')
     ET.SubElement(annotation, 'folder').text = 'images'
     ET.SubElement(annotation, 'filename').text = image_name
@@ -86,3 +90,60 @@ def create_file_multilabel(image_name, labels, bboxes):
         xml_file.write(xml_dom.toprettyxml(encoding='utf-8'))
 
     print(f'Saved Pascal VOC XML file with indentation: {xml_filename}')
+
+def generate_polygons_from_mask(polygons, mask, label):
+    """
+    Generate a list of polygons that encapsulate the ones in the binary mask.
+
+    Args:
+        mask (numpy.ndarray): The binary mask.
+
+    Returns:
+        list: A list of dictionaries, each containing the label and points of a polygon.
+    """
+    # Find the contours in the binary mask
+    contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Generate polygons from the contours
+    for i, contour in enumerate(contours):
+        points = contour.squeeze().tolist()
+        polygons.append({
+            "label": label,
+            "points": points,
+            "group_id": None,
+            "shape_type": "polygon",
+            "flags": {}
+        })
+
+    return polygons
+
+def create_polygon_json(polygons, image_path, size=(1080,1440)):
+    """
+    Create a JSON file with the given list of polygons and image information.
+
+    Args:
+        polygons (list): A list of dictionaries, each containing the label and points of a polygon.
+        image_path (str): The path to the image file.
+        image_data (str, optional): The base64-encoded image data, if any. Defaults to ''.
+        size (tuple, optional): The height and width of the image. Defaults to (1080,1440).
+    """
+    def encode_image_to_base64(image_path):
+        with open(image_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read())
+        return encoded_string.decode("utf-8")
+
+    # Create the JSON data
+    json_data = {
+        "version": "5.1.1",
+        "flags": {},
+        "shapes": polygons,
+        "imagePath": image_path,
+        "imageData": encode_image_to_base64(image_path),
+        "imageHeight": size[0],
+        "imageWidth": size[1]
+    }
+
+    # Save the JSON data to a file
+    json_filename = os.path.splitext(image_path)[0] + '.json'
+    with open(json_filename, "w") as f:
+        json.dump(json_data, f, indent=4)
