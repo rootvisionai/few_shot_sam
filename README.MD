@@ -32,7 +32,7 @@ cd segment-anything; pip install -e .
 The following dependencies are necessary for the FEWSAM:
 
 ```
-pip install opencv-python PyYAML PySimpleGUI
+pip install opencv-python PyYAML PySimpleGUI kmeans-pytorch
 ```
 
 Now download the model checkpoints:

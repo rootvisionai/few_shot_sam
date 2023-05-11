@@ -2,13 +2,12 @@ import glob
 
 import numpy as np
 import torch
-from PIL import Image
 import os
 import cv2
 
 from segment_anything import sam_model_registry, SamPredictor
 import interface
-import pascal_voc
+import annotations
 import utils
 
 
@@ -28,25 +27,31 @@ if __name__=="__main__":
     sam.to(device=cfg.device)
 
     predictor = SamPredictor(sam)
-    support_package = {}
+    support_package = {"positive": {}, "negative": {}}
     while True:
         # Support Images: Load, point, extract
         s_image_paths = glob.glob(os.path.join(cfg.data.support_dir, f"*.{cfg.data.format}"))
         embeddings = []
+        n_embeddings = []
         for sip in s_image_paths:
-            image_ = Image.open(sip)
-            image = Image.new("RGB", image_.size)
-            image.paste(image_)
-            image = np.asarray(image)
+            image = utils.import_image(sip)
             image = cv2.resize(image, (cfg.window_size[0], cfg.window_size[1]))
+
             points = interface.click_on_point(img=image)
             if not None in points:
                 for pt in points:
                     embedding = utils.get_embedding(predictor, image, pt)
                     embeddings.append(embedding)
 
+            points = interface.click_on_point(img=image)
+            if not None in points:
+                for pt in points:
+                    n_embedding = utils.get_embedding(predictor, image, pt)
+                    n_embeddings.append(n_embedding)
+
         label, event = interface.relabel_or_continue()
-        support_package[label] = embeddings
+        support_package["positive"][label] = embeddings
+        support_package["negative"][label] = n_embeddings
         if event == "END":
             break
         elif event == "CANCEL":
@@ -63,26 +68,29 @@ if __name__=="__main__":
         masks = []
         bboxes = []
         labels_str = []
-        for label in support_package:
+        polygons = []
+        for label in support_package["positive"].keys():
             print(f"[{cnt}/{len(q_image_paths)}] Loading {qip} >>>")
-            image_ = Image.open(qip)
-            image = Image.new("RGB", image_.size)
-            image.paste(image_)
-            image = np.asarray(image)
+            image = utils.import_image(qip)
             q_image_shape = image.shape
             image = cv2.resize(image, (cfg.window_size[0], cfg.window_size[1]))
             predictor.set_image(image)
             features = predictor.features
 
             similarity_maps = []
-            for i, embedding in enumerate(support_package[label]):
+            for i, embedding in enumerate(support_package["positive"][label]):
                 similarity_map = utils.get_similarity(embedding, features)
                 similarity_map = torch.where(similarity_map > cfg.threshold, 1., 0.)
                 similarity_maps.append(similarity_map)
+            for i, n_embedding in enumerate(support_package["negative"][label]):
+                similarity_map = utils.get_similarity(n_embedding, features)
+                similarity_map = torch.where(similarity_map > cfg.threshold, 1., 0.)
+                similarity_map = 1-similarity_map
+                similarity_maps.append(similarity_map)
 
             similarity_maps = torch.stack(similarity_maps, dim=0)
+            print(f"HIGHEST SIMILARITY: {torch.max(similarity_maps).item()}")
             similarity_maps = torch.einsum('bij->ij', similarity_maps)
-            similarity_maps = similarity_maps/similarity_maps.max()
             print(f"HIGHEST SIMILARITY: {torch.max(similarity_maps).item()}")
 
             yx = (similarity_maps == torch.max(similarity_maps)).nonzero()
@@ -100,6 +108,14 @@ if __name__=="__main__":
             )
             mask_ = mask_.astype(np.uint8)
             mask_ = cv2.resize(mask_[0], (q_image_shape[1], q_image_shape[0]))
+
+            polygons = annotations.generate_polygons_from_mask(
+                polygons=polygons,
+                mask=mask_,
+                label=label,
+                polygon_resolution=cfg.labeling.polygon_resolution
+            )
+
             masks.append(mask_)
 
             # create xml file from the coordinates
@@ -123,4 +139,5 @@ if __name__=="__main__":
             masks_transformed * 255
         )
 
-        pascal_voc.create_file_multilabel(image_name=qip, labels=labels_str, bboxes=bboxes)
+        annotations.create_xml_multilabel(image_name=qip, labels=labels_str, bboxes=bboxes)
+        annotations.create_polygon_json(image_path=qip, polygons=polygons, size=masks_transformed.shape)
