@@ -91,7 +91,7 @@ def create_xml_multilabel(image_name, labels, bboxes):
 
     print(f'Saved Pascal VOC XML file with indentation: {xml_filename}')
 
-def generate_polygons_from_mask(polygons, mask, label):
+def generate_polygons_from_mask(polygons, mask, label, polygon_resolution):
     """
     Generate a list of polygons that encapsulate the ones in the binary mask.
 
@@ -106,7 +106,10 @@ def generate_polygons_from_mask(polygons, mask, label):
 
     # Generate polygons from the contours
     for i, contour in enumerate(contours):
-        points = contour.squeeze().tolist()
+        points = contour.squeeze()[np.arange(0,
+                                             len(contour),
+                                             int(len(contour)/int(len(contour)*polygon_resolution))
+                                             )].tolist()
         polygons.append({
             "label": label,
             "points": points,

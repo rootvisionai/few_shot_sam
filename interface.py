@@ -24,10 +24,28 @@ def relabel_or_continue():
     window.close()
     return values[0], event
 
+def negative_embedding():
+    sg.theme('DarkAmber')   # Add a touch of color
+    # All the stuff inside your window.
+    layout = []
+
+    # Create the Window
+    window = sg.Window('Add negative points ...', layout)
+    # Event Loop to process "events" and get the "values" of the inputs
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED:
+            event = 'CANCEL'
+        print(f'You entered {values[0]}')
+        break
+
+    window.close()
+    return values[0], event
+
 def click_on_point(img):
     # create a window and display the image
 
-    cv2.imshow('image', cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    cv2.imshow("image", cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 
     # define lists to store the clicked points
     x = []
