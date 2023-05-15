@@ -106,17 +106,18 @@ def generate_polygons_from_mask(polygons, mask, label, polygon_resolution):
 
     # Generate polygons from the contours
     for i, contour in enumerate(contours):
-        points = contour.squeeze()[np.arange(0,
-                                             len(contour),
-                                             int(len(contour)/int(len(contour)*polygon_resolution))
-                                             )].tolist()
-        polygons.append({
-            "label": label,
-            "points": points,
-            "group_id": None,
-            "shape_type": "polygon",
-            "flags": {}
-        })
+        if int(len(contour)*polygon_resolution)>0:
+            points = contour.squeeze()[np.arange(0,
+                                                 len(contour),
+                                                 int(len(contour)/int(len(contour)*polygon_resolution))
+                                                 )].tolist()
+            polygons.append({
+                "label": label,
+                "points": points,
+                "group_id": None,
+                "shape_type": "polygon",
+                "flags": {}
+            })
 
     return polygons
 
