@@ -65,13 +65,13 @@ def get_embedding(predictor, image, point):
     embedding = features[:, :, int(point_adapted["y"]), int(point_adapted["x"])]
     return embedding
 
-def merge_multilabel_masks(masks, COLORMAP):
+def merge_multilabel_masks(masks, labels_int, COLORMAP):
     masks = np.transpose(np.array(masks), (1, 2, 0))
     height, width = masks.shape[0:2]
     rgb_mask = np.zeros((height, width, 3), dtype=np.uint8)
     for i in range(masks.shape[-1]):
         coords = np.where(masks[..., i] == 1)
-        rgb_mask[coords[0], coords[1], :] = tuple(COLORMAP[i])
+        rgb_mask[coords[0], coords[1], :] = tuple(COLORMAP[labels_int[i]])
     return rgb_mask
 
 # def cluster_embeddings(feature_map, num_clusters, device="cpu"):
