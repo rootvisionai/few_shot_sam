@@ -23,6 +23,8 @@ if __name__=="__main__":
 
     checkpoint = model_to_checkpoint_map[cfg.model]
 
+    utils.initialize_model(checkpoint)
+
     sam = sam_model_registry[cfg.model](checkpoint=checkpoint)
     sam.to(device=cfg.device)
 

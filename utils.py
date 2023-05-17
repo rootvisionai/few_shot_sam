@@ -4,6 +4,9 @@ import types
 import torch
 import numpy as np
 from PIL import Image
+import os
+import requests
+from tqdm import tqdm
 # from kmeans_pytorch import kmeans, kmeans_predict
 
 
@@ -100,3 +103,21 @@ def import_image(path):
     image.paste(image_)
     image = np.asarray(image)
     return image
+
+
+def initialize_model(file_path):
+
+    if os.path.exists(file_path)==False:
+        checkpoint_split = file_path.split("/")[2]
+        url = 'https://dl.fbaipublicfiles.com/segment_anything/'+checkpoint_split  # The URL of the file you want to download
+        response = requests.get(url, stream=True)
+
+        # Get the size of the content (in bytes)
+        total_size = int(response.headers.get('content-length', 0))
+
+        # Block size to be displayed during the download process (1 Kilobyte)
+        block_size = 1024 
+
+        with open(file_path, 'wb') as file:
+            for data in tqdm(response.iter_content(block_size), total=total_size//block_size, unit='KB'):
+                file.write(data)
