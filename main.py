@@ -83,35 +83,44 @@ if __name__=="__main__":
             similarity_maps = []
             for i, embedding in enumerate(support_package["positive"][label]):
                 similarity_map = utils.get_similarity(embedding, features)
-                similarity_map = torch.where(similarity_map > cfg.threshold, 1., 0.)
+                # similarity_map = torch.where(similarity_map > cfg.threshold, 1., 0.)
                 similarity_maps.append(similarity_map)
             for i, n_embedding in enumerate(support_package["negative"][label]):
                 similarity_map = utils.get_similarity(n_embedding, features)
-                similarity_map = torch.where(similarity_map > cfg.threshold, 1., 0.)
+                # similarity_map = torch.where(similarity_map > cfg.threshold, 1., 0.)
                 similarity_map = 1-similarity_map
                 similarity_maps.append(similarity_map)
 
             similarity_maps = torch.stack(similarity_maps, dim=0)
             similarity_maps = torch.einsum('bij->ij', similarity_maps)/similarity_maps.shape[0]
-            print(f"HIGHEST SIMILARITY FOUND: {torch.max(similarity_maps).item()}")
+            similarity_maps = torch.where(similarity_maps > cfg.threshold, 1., 0.)
+            from skimage.morphology import erosion
 
-            torchvision.utils.save_image(similarity_maps, "./test.png")
-            local_max_coordinates = peak_local_max(similarity_maps.cpu().numpy(), min_distance=10)
+            similarity_maps = erosion(similarity_maps.cpu().numpy(), np.ones((2, 2)))
+
+            print(f"HIGHEST SIMILARITY FOUND: {np.max(similarity_maps)}")
+
+            torchvision.utils.save_image(torch.from_numpy(similarity_maps), "./test.png")
+
+            # local_max_coordinates = peak_local_max(similarity_maps, min_distance=7)
+            local_max_coordinates = (similarity_maps > cfg.threshold).nonzero()
+            print(f"LOCAL MAX COORDINATES in [Y, X] FORMAT: {local_max_coordinates}")
+
             local_max_coordinates = local_max_coordinates if local_max_coordinates.shape[0] > 0 else \
                 (similarity_maps == torch.max(similarity_maps)).nonzero()
 
             if local_max_coordinates.shape[0] > 1:
                 local_max_coordinates = [[elm, similarity_maps[elm[0], elm[1]].item()] for elm in local_max_coordinates]
-                local_max_coordinates = sorted(local_max_coordinates, key=lambda x: x[1], reverse=True)[0:cfg.labeling.number_of_local_max]
+                local_max_coordinates = sorted(local_max_coordinates, key=lambda x: x[1], reverse=True)
                 med = median([elm[1] for elm in local_max_coordinates])
-                local_max_coordinates = [elm[0] for elm in local_max_coordinates if elm[1] > med]
+                local_max_coordinates = [elm[0] for elm in local_max_coordinates if elm[1] > cfg.threshold]
 
             print(f"LOCAL MAX COORDINATES in [Y, X] FORMAT: {local_max_coordinates}")
 
             for yx in local_max_coordinates:
 
                 xy = utils.adapt_point(
-                    {"x": yx[1].item(), "y": yx[0].item()},
+                    {"x": yx[1], "y": yx[0]},
                     initial_shape=features.shape[-2:],
                     final_shape=image.shape[0:2]
                 )
