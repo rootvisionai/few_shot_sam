@@ -2,7 +2,7 @@ data:
   support_dir: "support_images"
   query_dir: "query_images"
   output_dir: "results"
-  format: "jpg"
+  format: "jpg|png|jpeg" 
 
 labeling:
   mask: 1
