@@ -1,0 +1,7 @@
+numpy==1.24.3
+opencv_python==4.7.0.72
+Pillow==9.5.0
+PySimpleGUI==4.60.4
+PyYAML==6.0
+segment_anything==1.0
+torch==1.12.1+cu113

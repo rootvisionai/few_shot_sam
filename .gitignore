@@ -16,3 +16,6 @@
 *.json
 *.onnx
 *.drawio
+
+
+!requirements.txt
