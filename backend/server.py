@@ -4,6 +4,7 @@ import numpy as np
 import os
 import sys
 import cv2
+import json
 
 import server_utils as utils
 import annotations
@@ -25,7 +26,7 @@ def extract_features():
         "image": [base64_encoded_image, ...],
         "annotations": {
             [
-                {"coordinates": [x, y], "label": "label_name"},
+                {"coordinates": {"positive": [x, y], "negative": [x, y]}, "label": "label_name"},
                 ...
             ]
         }
@@ -41,46 +42,46 @@ def extract_features():
     "error": ...
     """
 
-    try:
-        data = request.json
-        support_package = {}
+    # try:
+    data = request.json
+    support_package = {}
 
-        embeddings = []
-        n_embeddings = []
-        for i, image_data in enumerate(data['image']):
-            image = utils.get_image(image_data)
-            annotations = request.json['annotations'][i]
+    embeddings = []
+    n_embeddings = []
+    for i, image_data in enumerate(data['image']):
+        image = utils.get_image(image_data)
+        annotations = data['annotations'][i]
 
-            for j, annot in enumerate(annotations):
-                coordinates = annot["coordinates"]
-                label = annot["label"]
+        coordinates = annotations["coordinates"]
+        label = annotations["label"]
 
-                positive_coord = coordinates["positive"]
-                negative_coord = coordinates["negative"]
+        positive_coord = coordinates["positive"]
+        negative_coord = coordinates["negative"]
 
-                if not None in positive_coord:
-                    for pt in positive_coord:
-                        embedding = utils.get_embedding(predictor, image, pt)
-                        embeddings.append(embedding)
+        if not None in positive_coord:
+            for pt in positive_coord:
+                embedding = utils.get_embedding(predictor, image, pt)
+                embeddings.append(embedding.cpu().numpy().tolist())
 
-                if not None in negative_coord:
-                    for pt in negative_coord:
-                        n_embedding = utils.get_embedding(predictor, image, pt)
-                        n_embeddings.append(n_embedding)
+        if not None in negative_coord:
+            for pt in negative_coord:
+                n_embedding = utils.get_embedding(predictor, image, pt)
+                n_embeddings.append(n_embedding.cpu().numpy().tolist())
 
-                if label not in support_package:
-                    support_package[label] = {"positive": [], "negative": []}
+        if label not in support_package:
+            support_package[label] = {"positive": [], "negative": []}
 
-                support_package[label]["positive"].append(embeddings.cpu().numpy())
-                support_package[label]["negative"].append(n_embeddings.cpu().numpy())
+        support_package[label]["positive"].append(embeddings)
+        support_package[label]["negative"].append(n_embeddings)
 
-    except Exception as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        error_text = f"{exc_type}\n\t{fname}\n\t\t{exc_tb.tb_lineno}\n{e}"
-        logger.error(error_text)
+    # except Exception as e:
+    #     exc_type, exc_obj, exc_tb = sys.exc_info()
+    #     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    #     error_text = f"{exc_type}\n\t{fname}\n\t\t{exc_tb.tb_lineno}\n{e}"
+    #     logger.error(error_text)
 
-    return jsonify({'package': support_package, "error": error_text})
+    response = {'package': support_package, "error": "error_text"}
+    return json.dumps(response)
 
 @app.route('/generate/<gen_type>', methods=['POST'])
 def generate_mask(gen_type):
@@ -216,12 +217,14 @@ def generate_mask(gen_type):
 
 
 if __name__ == '__main__':
-    cfg = utils.load_config("../config.yml")
+    cfg = utils.load_config("./config.yml")
 
     checkpoint = model_to_checkpoint_map[cfg.model]
     sam = sam_model_registry[cfg.model](checkpoint=checkpoint)
     sam.to(device=cfg.device)
     predictor = SamPredictor(sam)
-
-    logger = utils.get_logger(log_path='logs/file.log')
-    app.run(debug=True)
+    if not os.path.isfile("./backend/logs/file.log"):
+        with open("./backend/logs/file.log", "w") as fp:
+            fp.write("")
+    logger = utils.get_logger(log_path='./backend/logs/file.log')
+    app.run(debug=False)

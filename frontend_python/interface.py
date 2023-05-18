@@ -1,6 +1,9 @@
+import copy
+import json
+
 import cv2
 import PySimpleGUI as sg
-
+import interface_utils as utils
 
 def relabel_or_continue():
     sg.theme('DarkAmber')   # Add a touch of color
@@ -74,4 +77,61 @@ def click_on_point(img):
         return [None]
 
 if __name__ == "__main__":
-    relabel_or_continue()
+    init_image = utils.import_image("test.jpg")
+    image_shape = init_image.shape
+    window_size = (512, 512)
+
+    image = cv2.resize(copy.deepcopy(init_image), (window_size[0], window_size[1]))
+
+    annotations = []
+    while True:
+        print("CLICK ON POSITIVE POINTS")
+        points = click_on_point(img=image)
+        positive_points = []
+        if not None in points:
+            for pt in points:
+                xy = utils.adapt_point(
+                    {"x": pt[0], "y": pt[1]},
+                    initial_shape=image.shape[0:2],
+                    final_shape=image_shape[0:2]
+                )
+                positive_points.append([xy["x"], xy["y"]])
+
+        print("CLICK ON NEGATIVE POINTS")
+        points = click_on_point(img=image)
+        negative_points = []
+        if not None in points:
+            for pt in points:
+                xy = utils.adapt_point(
+                    {"x": pt[0], "y": pt[1]},
+                    initial_shape=image.shape[0:2],
+                    final_shape=image_shape[0:2]
+                )
+                negative_points.append([xy["x"], xy["y"]])
+
+        label, event = relabel_or_continue()
+
+        annotations.append({
+            "coordinates": {"positive": positive_points, "negative": negative_points},
+            "label": label
+        })
+
+        if event == "END":
+            break
+        elif event == "CANCEL":
+            break
+        else:
+            pass
+
+    json_file = {
+        "annotations": annotations,
+        "image": [utils.numpy_to_base64(init_image)]
+    }
+
+    with open("request_content.json", "w") as fp:
+        json.dump(json_file, fp, indent=3)
+
+    print(f"ANNOTATIONS:\n{annotations}")
+
+
+
