@@ -77,7 +77,7 @@ def extract_features():
     # except Exception as e:
     #     exc_type, exc_obj, exc_tb = sys.exc_info()
     #     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    #     error_text = f"{exc_type}\n\t{fname}\n\t\t{exc_tb.tb_lineno}\n{e}"
+    #     error_text = f"{exc_type}\n-file {fname}\n--line {exc_tb.tb_lineno}\n{e}"
     #     logger.error(error_text)
 
     response = {'package': support_package, "error": "error_text"}
@@ -101,6 +101,7 @@ def generate_mask(gen_type):
         if gen_type in ["point", "annotation", "all"]:
             support_package = request.json['package']
             image_data = request.json['image']
+            image_path = request.json['image_path']
             for label_int, label_str in enumerate(support_package):
                 image = utils.get_image(image_data)
                 q_image_shape = image.shape
@@ -108,15 +109,17 @@ def generate_mask(gen_type):
                 features = predictor.features
 
                 similarity_maps = []
-                for i, embedding in enumerate(support_package["positive"][label_str]):
+                for i, embedding in enumerate(support_package[label_str]["positive"][0]):
+                    embedding = np.array(embedding)
                     embedding = torch.from_numpy(embedding).to(cfg.device)
 
                     similarity_map = utils.get_similarity(embedding, features)
                     similarity_map = torch.where(similarity_map > cfg.threshold, 1., 0.)
                     similarity_maps.append(similarity_map)
 
-                for i, n_embedding in enumerate(support_package["negative"][label_str]):
-                    embedding = torch.from_numpy(embedding).to(cfg.device)
+                for i, n_embedding in enumerate(support_package[label_str]["negative"][0]):
+                    n_embedding = np.array(n_embedding)
+                    n_embedding = torch.from_numpy(n_embedding).to(cfg.device)
 
                     similarity_map = utils.get_similarity(n_embedding, features)
                     similarity_map = torch.where(similarity_map > cfg.threshold, 1., 0.)
@@ -138,13 +141,13 @@ def generate_mask(gen_type):
 
                 for yx in yx_multi:
                     xy = utils.adapt_point(
-                        {"x": yx[0, 1].item(), "y": yx[0, 0].item()},
+                        {"x": yx[1].item(), "y": yx[0].item()},
                         initial_shape=features.shape[-2:],
                         final_shape=image.shape[0:2]
                     )
 
+                    matching_points[label_str] = {"x": xy["x"], "y": xy["y"]}
                     if gen_type == "point":
-                        matching_points[label_str] = {"x": xy["x"], "y": xy["y"]}
                         return jsonify({'matching_points': matching_points, "error": error_text})
 
                     l_ = np.ones((1,))
@@ -168,7 +171,11 @@ def generate_mask(gen_type):
                     # create xml file from the coordinates
                     coordinates = np.nonzero(mask_)
                     y0, y1, x0, x1 = coordinates[0].min(), coordinates[0].max(), coordinates[1].min(), coordinates[1].max()
-                    bboxes.append([x0, y0, x1, y1])
+                    bboxes.append({
+                        "coordinates": [int(x0), int(y0), int(x1), int(y1)],
+                        "format": "xyxy",
+                        "label": "label_str"
+                    })
 
                     labels_str.append(label_str)
                     labels_int.append(label_int)
@@ -177,27 +184,29 @@ def generate_mask(gen_type):
                 masks_transformed = utils.merge_multilabel_masks(masks, labels_int, COLORMAP=cfg.COLORMAP)
                 masks_transformed = masks_transformed * 255
 
-                pascal_xml = annotations.create_xml_multilabel(image_name=qip, labels=labels_str, bboxes=bboxes)
-                coco_json = annotations.create_polygon_json(image_path=qip, polygons=polygons, size=masks_transformed.shape)
+                pascal_xml = annotations.create_xml_multilabel(image_name=image_path, labels=labels_str, bboxes=bboxes)
+                coco_json = annotations.create_polygon_json(image_path=image_path, image_data=image_data, polygons=polygons, size=masks_transformed.shape)
 
                 if gen_type == "annotation":
-                    return jsonify({
-                        "polygons": polygons,
-                        "bounding_boxes": bboxes,
-                        "coco_json": coco_json,
-                        "pascal_xml": pascal_xml,
-                        "error": error_text
-                    })
+                    response = {
+                            "polygons": polygons,
+                            "bounding_boxes": bboxes,
+                            "coco_json": coco_json,
+                            "pascal_xml": pascal_xml,
+                            "error": error_text.replace("\n", " ")
+                        }
+                    return json.dumps(response)
 
                 elif gen_type == "all":
-                    return jsonify({
-                        'matching_points': matching_points,
-                        "polygons": polygons,
-                        "bounding_boxes": bboxes,
-                        "coco_json": coco_json,
-                        "pascal_xml": pascal_xml,
-                        "error": error_text
-                    })
+                    response = {
+                            'matching_points': matching_points,
+                            "polygons": polygons,
+                            "bounding_boxes": bboxes,
+                            "coco_json": coco_json,
+                            "pascal_xml": pascal_xml,
+                            "error": error_text.replace("\n", " ")
+                        }
+                    return json.dumps(response)
 
             else:
                 error_text = "NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES."
@@ -210,7 +219,7 @@ def generate_mask(gen_type):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        error_text = f"{exc_type}\n\t{fname}\n\t\t{exc_tb.tb_lineno}\n{e}"
+        error_text = f"{exc_type}\n-file {fname}\n--line {exc_tb.tb_lineno}\n{e}"
         logger.error(error_text)
 
     return jsonify({"error": error_text})

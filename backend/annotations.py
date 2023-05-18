@@ -86,12 +86,12 @@ def create_xml_multilabel(image_name, labels, bboxes):
     # Save XML to file with indentation
     xml_filename = os.path.splitext(image_name)[0] + '.xml'
     with open(xml_filename, 'wb') as xml_file:
-        xml_str = ET.tostring(annotation)
-        xml_dom = xml.dom.minidom.parseString(xml_str)
-        xml_file.write(xml_dom.toprettyxml(encoding='utf-8'))
+        xml_str = (ET.tostring(annotation)).decode("utf-8")
+        # xml_dom = xml.dom.minidom.parseString(xml_str)
+        # xml_file.write(xml_dom.toprettyxml(encoding='utf-8'))
 
     print(f'Created Pascal VOC XML file with indentation: {xml_filename}')
-    return xml_dom.toprettyxml(encoding='utf-8')
+    return xml_str
 
 def generate_polygons_from_mask(polygons, mask, label, polygon_resolution):
     """
@@ -123,7 +123,7 @@ def generate_polygons_from_mask(polygons, mask, label, polygon_resolution):
 
     return polygons
 
-def create_polygon_json(polygons, image_path, size=(1080,1440)):
+def create_polygon_json(polygons, image_path, image_data, size=(1080,1440)):
     """
     Create a JSON file with the given list of polygons and image information.
 
@@ -133,10 +133,6 @@ def create_polygon_json(polygons, image_path, size=(1080,1440)):
         image_data (str, optional): The base64-encoded image data, if any. Defaults to ''.
         size (tuple, optional): The height and width of the image. Defaults to (1080,1440).
     """
-    def encode_image_to_base64(image_path):
-        with open(image_path, "rb") as image_file:
-            encoded_string = base64.b64encode(image_file.read())
-        return encoded_string.decode("utf-8")
 
     # Create the JSON data
     json_data = {
@@ -144,7 +140,7 @@ def create_polygon_json(polygons, image_path, size=(1080,1440)):
         "flags": {},
         "shapes": polygons,
         "imagePath": image_path,
-        "imageData": encode_image_to_base64(image_path),
+        "imageData": image_data,
         "imageHeight": size[0],
         "imageWidth": size[1]
     }

@@ -87,7 +87,7 @@ def create_xml_multilabel(image_name, labels, bboxes):
     with open(xml_filename, 'wb') as xml_file:
         xml_str = ET.tostring(annotation)
         xml_dom = xml.dom.minidom.parseString(xml_str)
-        xml_file.write(xml_dom.toprettyxml(encoding='utf-8'))
+        # xml_file.write(xml_dom.toprettyxml(encoding='utf-8'))
 
     print(f'Saved Pascal VOC XML file with indentation: {xml_filename}')
 

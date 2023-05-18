@@ -77,7 +77,8 @@ def click_on_point(img):
         return [None]
 
 if __name__ == "__main__":
-    init_image = utils.import_image("test.jpg")
+    image_path = "test.jpg"
+    init_image = utils.import_image(image_path)
     image_shape = init_image.shape
     window_size = (512, 512)
 
@@ -125,7 +126,8 @@ if __name__ == "__main__":
 
     json_file = {
         "annotations": annotations,
-        "image": [utils.numpy_to_base64(init_image)]
+        "image": [utils.numpy_to_base64(init_image)],
+        "image_path": image_path
     }
 
     with open("request_content.json", "w") as fp:

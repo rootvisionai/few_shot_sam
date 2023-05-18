@@ -5,6 +5,8 @@ import yaml
 import json
 import types
 import numpy as np
+import torch
+import logging
 
 
 def get_image(image_data):
@@ -34,6 +36,36 @@ def adapt_point(pts, initial_shape, final_shape):
     pts_["x"] = pts["x"] * scale_x
     return pts_
 
+def l2_norm(vector):
+    v_norm = vector.norm(dim=-1, p=2)
+    vector = vector.divide(v_norm.unsqueeze(-1))
+    return vector
+
+def flatten_feature_map(embeddings):
+    """
+    :param embeddings: shape B, N, H, W
+    :return: B, H*W, N
+    """
+    b, n, h, w = embeddings.shape
+    embeddings = embeddings.reshape(b, n, h*w).permute(0, 2, 1)
+    return embeddings
+
+def get_similarity(support_emb, query_features):
+
+    support_emb = l2_norm(support_emb)
+
+    b, n, h, w = query_features.shape
+    query_features = flatten_feature_map(query_features)
+    query_features = l2_norm(query_features)[0]
+
+    cos_sim = torch.nn.functional.linear(
+        support_emb.float(),
+        query_features.float()
+    )
+
+    cos_sim = cos_sim.reshape(b, h, w).squeeze(0)
+    return cos_sim
+
 def get_embedding(predictor, image, point):
     predictor.set_image(image)
     features = predictor.features
@@ -52,7 +84,6 @@ def merge_multilabel_masks(masks, labels_int, COLORMAP):
     return rgb_mask
 
 def get_logger(log_path = 'logs/file.log'):
-    import logging
 
     # Create a custom logger
     logger = logging.getLogger(__name__)
