@@ -1,5 +1,6 @@
 import torch
 from flask import Flask, request, jsonify
+from waitress import serve
 import numpy as np
 import os
 import sys
@@ -236,4 +237,4 @@ if __name__ == '__main__':
         with open("./backend/logs/file.log", "w") as fp:
             fp.write("")
     logger = utils.get_logger(log_path='./backend/logs/file.log')
-    app.run(debug=False)
+    serve(app, host="0.0.0.0", port=80)

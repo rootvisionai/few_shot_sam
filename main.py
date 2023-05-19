@@ -4,7 +4,6 @@ import numpy as np
 import torch
 import os
 import cv2
-from numpyencoder import NumpyEncoder
 
 from segment_anything import sam_model_registry, SamPredictor
 import interface

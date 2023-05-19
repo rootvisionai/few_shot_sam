@@ -58,7 +58,7 @@ def create_xml_multilabel(image_name, labels, bboxes):
     annotation = ET.Element('annotation')
     ET.SubElement(annotation, 'folder').text = 'images'
     ET.SubElement(annotation, 'filename').text = image_name
-    ET.SubElement(annotation, 'path').text = os.path.abspath(image_name)
+    ET.SubElement(annotation, 'path').text = image_name
 
     source = ET.SubElement(annotation, 'source')
     ET.SubElement(source, 'database').text = 'Unknown'
@@ -78,10 +78,10 @@ def create_xml_multilabel(image_name, labels, bboxes):
         ET.SubElement(obj, 'difficult').text = '0'
 
         bbox_elem = ET.SubElement(obj, 'bndbox')
-        ET.SubElement(bbox_elem, 'xmin').text = str(bbox[0])
-        ET.SubElement(bbox_elem, 'ymin').text = str(bbox[1])
-        ET.SubElement(bbox_elem, 'xmax').text = str(bbox[2])
-        ET.SubElement(bbox_elem, 'ymax').text = str(bbox[3])
+        ET.SubElement(bbox_elem, 'xmin').text = str(bbox["coordinates"][0])
+        ET.SubElement(bbox_elem, 'ymin').text = str(bbox["coordinates"][1])
+        ET.SubElement(bbox_elem, 'xmax').text = str(bbox["coordinates"][2])
+        ET.SubElement(bbox_elem, 'ymax').text = str(bbox["coordinates"][3])
 
     # Save XML to file with indentation
     xml_filename = os.path.splitext(image_name)[0] + '.xml'
