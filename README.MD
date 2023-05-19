@@ -50,7 +50,7 @@ python main.py
 ## DOCKERIZATION
 Build docker image
 ```
-docker scan few_shot_sam:0.0.1 .
+docker build -t few_shot_sam:0.0.1 .
 ```
 Run docker container
 ```
