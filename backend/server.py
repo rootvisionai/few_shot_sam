@@ -9,6 +9,7 @@ import json
 
 import server_utils as utils
 import annotations
+from exact_solution import ExactSolution
 
 from segment_anything import sam_model_registry, SamPredictor
 model_to_checkpoint_map = {
@@ -109,36 +110,37 @@ def generate_mask(gen_type):
                 predictor.set_image(image)
                 features = predictor.features
 
-                similarity_maps = []
+                linear_model_labels_int = []
+                embedding_collection = []
                 for i, embedding in enumerate(support_package[label_str]["positive"][0]):
                     embedding = np.array(embedding)
-                    embedding = torch.from_numpy(embedding).to(cfg.device)
+                    embedding = torch.from_numpy(embedding).to(cfg.device)[0]
 
-                    similarity_map = utils.get_similarity(embedding, features)
-                    similarity_map = torch.where(similarity_map > cfg.threshold, 1., 0.)
-                    similarity_maps.append(similarity_map)
+                    linear_model_labels_int.append(1)
+                    embedding_collection.append(embedding)
 
-                for i, n_embedding in enumerate(support_package[label_str]["negative"][0]):
-                    n_embedding = np.array(n_embedding)
-                    n_embedding = torch.from_numpy(n_embedding).to(cfg.device)
+                for i, embedding in enumerate(support_package[label_str]["negative"][0]):
+                    embedding = np.array(embedding)
+                    embedding = torch.from_numpy(embedding).to(cfg.device)[0]
 
-                    similarity_map = utils.get_similarity(n_embedding, features)
-                    similarity_map = torch.where(similarity_map > cfg.threshold, 1., 0.)
-                    similarity_map = 1 - similarity_map
-                    similarity_maps.append(similarity_map)
+                    linear_model_labels_int.append(0)
+                    embedding_collection.append(embedding)
 
-                similarity_maps = torch.stack(similarity_maps, dim=0)
-                for i, sm_ in enumerate(similarity_maps):
-                    if i == 0:
-                        sm = sm_
-                    else:
-                        sm = sm * sm_
-                similarity_maps = sm
+                embedding_collection = torch.stack(embedding_collection, dim=0)
+                linear_model_labels_int = np.array(linear_model_labels_int)
 
-                print(f"HIGHEST SIMILARITY: {torch.max(similarity_maps).item()}")
+                linear_model = ExactSolution(
+                    device=cfg.device,
+                    embedding_collection=embedding_collection,
+                    labels_int=linear_model_labels_int,
+                    threshold=cfg.threshold
+                )
+                predictions = linear_model.infer(features)
+
+                print(f"HIGHEST SIMILARITY: {torch.max(predictions).item()}")
                 # similarity_maps = torch.einsum('bij->ij', similarity_maps)
 
-                yx_multi = (similarity_maps == torch.max(similarity_maps)).nonzero()  # this can be changed later
+                yx_multi = (predictions == 1.).nonzero()  # this can be changed later
 
                 for yx in yx_multi:
                     xy = utils.adapt_point(
@@ -233,8 +235,8 @@ if __name__ == '__main__':
     sam = sam_model_registry[cfg.model](checkpoint=checkpoint)
     sam.to(device=cfg.device)
     predictor = SamPredictor(sam)
-    if not os.path.isfile("./backend/logs/file.log"):
-        with open("./backend/logs/file.log", "w") as fp:
+    if not os.path.isfile("./logs/file.log"):
+        with open("./logs/file.log", "w") as fp:
             fp.write("")
-    logger = utils.get_logger(log_path='./backend/logs/file.log')
+    logger = utils.get_logger(log_path='./logs/file.log')
     serve(app, host="0.0.0.0", port=80)

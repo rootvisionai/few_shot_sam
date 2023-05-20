@@ -33,3 +33,6 @@ url = "http://127.0.0.1:80/generate/all"
 response = requests.post(url, data=json.dumps(data_json), headers=headers)
 data_json = json.loads(response.text)
 print(data_json)
+with open("test.json", "w") as fp:
+    json.dump(data_json["coco_json"], fp, indent=4)
+

@@ -12,6 +12,6 @@ gcloud services enable container.googleapis.com
 
 gcloud services enable compute.googleapis.com
 
-gcloud container clusters create few-shot-sam-backend-cluster --cluster-version=1.23 --zone europe-west4 --num-nodes 1 --scopes=gke-default,storage-rw
+gcloud container clusters create few-shot-sam-backend-cluster --zone europe-west4 --num-nodes 1 --scopes=gke-default,storage-rw
 
 gcloud container node-pools create few-shot-sam-gpu-pool --cluster few-shot-sam-backend-cluster --image-type=COS_CONTAINERD --accelerator type=nvidia-tesla-k80,count=1 --machine-type n1-standard-2 --zone=europe-west4
