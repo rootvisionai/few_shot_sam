@@ -72,11 +72,16 @@ if __name__=="__main__":
 
     if len(s_image_paths) !=0:
 
-        # Query Images: Load, extract, match
-        q_image_paths = glob.glob(os.path.join(cfg.data.query_dir, f"*.{cfg.data.format}"))
-        q_image_paths += glob.glob(os.path.join(cfg.data.query_dir, "**", f"*.{cfg.data.format}"))
-        q_image_paths += glob.glob(os.path.join(cfg.data.query_dir, "**", "**", f"*.{cfg.data.format}"))
-        q_image_paths += glob.glob(os.path.join(cfg.data.query_dir, "**", "**", "**", f"*.{cfg.data.format}"))
+        data_format = cfg.data.format.split('|')
+
+        q_image_paths = []
+        for i_data_dormat in data_format:
+            # Query Images: Load, extract, match
+            q_image_paths += glob.glob(os.path.join(cfg.data.query_dir, f"*.{i_data_dormat}"))
+            q_image_paths += glob.glob(os.path.join(cfg.data.query_dir, "**", f"*.{i_data_dormat}"))
+            q_image_paths += glob.glob(os.path.join(cfg.data.query_dir, "**", "**", f"*.{i_data_dormat}"))
+            q_image_paths += glob.glob(os.path.join(cfg.data.query_dir, "**", "**", "**", f"*.{i_data_dormat}"))
+
         for cnt, qip in enumerate(q_image_paths):
             masks = []
             bboxes = []
