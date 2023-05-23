@@ -3,8 +3,8 @@ import json
 import interface_utils as utils
 
 
-# Define the URL of the endpoint
-url = "http://127.0.0.1:80/extract_features"  # replace with your actual endpoint
+# Define the URL of the endpoint: http://fewshotsam.rootvisionai.net
+url = "http://35.226.201.63:8080/extract_features"  # replace with your actual endpoint
 
 # Convert json to dict
 with open("request_content.json", "r") as fp:
@@ -27,7 +27,7 @@ data_json["image"] = utils.numpy_to_base64(init_image)
 print(data_json)
 
 # Define the URL of the endpoint
-url = "http://127.0.0.1:80/generate/all"
+url = "http://35.226.201.63:8080/generate/all"
 
 # Send the POST request
 response = requests.post(url, data=json.dumps(data_json), headers=headers)
