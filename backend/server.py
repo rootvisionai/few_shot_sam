@@ -235,8 +235,13 @@ if __name__ == '__main__':
     sam = sam_model_registry[cfg.model](checkpoint=checkpoint)
     sam.to(device=cfg.device)
     predictor = SamPredictor(sam)
+    
+    if not os.path.isdir("./backend/logs/"):
+        os.makedirs("./backend/logs/")
+    
     if not os.path.isfile("./backend/logs/file.log"):
-        with open("./logs/file.log", "w") as fp:
+        with open("./backend/logs/file.log", "w") as fp:
             fp.write("")
+    
     logger = utils.get_logger(log_path='./backend/logs/file.log')
-    serve(app, host="0.0.0.0", port=80)
+    serve(app, host="0.0.0.0", port=8080)
