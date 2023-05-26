@@ -28,7 +28,7 @@ def extract_features():
         "image": [base64_encoded_image, ...],
         "annotations": {
             [
-                {"coordinates": {"positive": [x, y], "negative": [x, y]}, "label": "label_name"},
+                {"coordinates": {"positive": [x, y], "negative": [x, y]}, "label": "label_name1"},
                 ...
             ]
         }

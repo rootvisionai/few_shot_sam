@@ -16,3 +16,4 @@
 *.json
 *.onnx
 *.drawio
+/dev_gitignored/
