@@ -12,12 +12,7 @@ Before you start installation, create an environment first:
 conda create --name sam python==3.9
 ```
 
-```
-pip install git+https://github.com/facebookresearch/segment-anything.git
-```
-
 Install Segment Anything:
-
 ```
 pip install git+https://github.com/facebookresearch/segment-anything.git
 ```
@@ -51,4 +46,15 @@ Then, let the magic begin ...
 ```
 python main.py
 ```
+
+## DOCKERIZATION
+Build docker image
+```
+docker build -t few_shot_sam:0.0.1 .
+```
+Run docker container
+```
+docker run --gpus all -p 80:8080 -it few_shot_sam:0.0.1
+```
+
 

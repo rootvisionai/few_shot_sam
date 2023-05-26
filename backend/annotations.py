@@ -49,15 +49,16 @@ def create_xml_singlelabel(xmin, ymin, xmax, ymax, image_name, label):
     with open(xml_filename, 'wb') as xml_file:
         xml_str = ET.tostring(root)
         xml_dom = xml.dom.minidom.parseString(xml_str)
-        xml_file.write(xml_dom.toprettyxml(encoding='utf-8'))
+        # xml_file.write(xml_dom.toprettyxml(encoding='utf-8'))
 
-    print(f'Saved Pascal VOC XML file with indentation: {xml_filename}')
+    print(f'Created Pascal VOC XML file with indentation: {xml_filename}')
+    return xml_dom.toprettyxml(encoding='utf-8')
 
 def create_xml_multilabel(image_name, labels, bboxes):
     annotation = ET.Element('annotation')
     ET.SubElement(annotation, 'folder').text = 'images'
     ET.SubElement(annotation, 'filename').text = image_name
-    ET.SubElement(annotation, 'path').text = os.path.abspath(image_name)
+    ET.SubElement(annotation, 'path').text = image_name
 
     source = ET.SubElement(annotation, 'source')
     ET.SubElement(source, 'database').text = 'Unknown'
@@ -77,19 +78,20 @@ def create_xml_multilabel(image_name, labels, bboxes):
         ET.SubElement(obj, 'difficult').text = '0'
 
         bbox_elem = ET.SubElement(obj, 'bndbox')
-        ET.SubElement(bbox_elem, 'xmin').text = str(bbox[0])
-        ET.SubElement(bbox_elem, 'ymin').text = str(bbox[1])
-        ET.SubElement(bbox_elem, 'xmax').text = str(bbox[2])
-        ET.SubElement(bbox_elem, 'ymax').text = str(bbox[3])
+        ET.SubElement(bbox_elem, 'xmin').text = str(bbox["coordinates"][0])
+        ET.SubElement(bbox_elem, 'ymin').text = str(bbox["coordinates"][1])
+        ET.SubElement(bbox_elem, 'xmax').text = str(bbox["coordinates"][2])
+        ET.SubElement(bbox_elem, 'ymax').text = str(bbox["coordinates"][3])
 
     # Save XML to file with indentation
     xml_filename = os.path.splitext(image_name)[0] + '.xml'
     with open(xml_filename, 'wb') as xml_file:
-        xml_str = ET.tostring(annotation)
-        xml_dom = xml.dom.minidom.parseString(xml_str)
+        xml_str = (ET.tostring(annotation)).decode("utf-8")
+        # xml_dom = xml.dom.minidom.parseString(xml_str)
         # xml_file.write(xml_dom.toprettyxml(encoding='utf-8'))
 
-    print(f'Saved Pascal VOC XML file with indentation: {xml_filename}')
+    print(f'Created Pascal VOC XML file with indentation: {xml_filename}')
+    return xml_str
 
 def generate_polygons_from_mask(polygons, mask, label, polygon_resolution):
     """
@@ -121,7 +123,7 @@ def generate_polygons_from_mask(polygons, mask, label, polygon_resolution):
 
     return polygons
 
-def create_polygon_json(polygons, image_path, size=(1080,1440)):
+def create_polygon_json(polygons, image_path, image_data, size=(1080,1440)):
     """
     Create a JSON file with the given list of polygons and image information.
 
@@ -131,10 +133,6 @@ def create_polygon_json(polygons, image_path, size=(1080,1440)):
         image_data (str, optional): The base64-encoded image data, if any. Defaults to ''.
         size (tuple, optional): The height and width of the image. Defaults to (1080,1440).
     """
-    def encode_image_to_base64(image_path):
-        with open(image_path, "rb") as image_file:
-            encoded_string = base64.b64encode(image_file.read())
-        return encoded_string.decode("utf-8")
 
     # Create the JSON data
     json_data = {
@@ -142,12 +140,15 @@ def create_polygon_json(polygons, image_path, size=(1080,1440)):
         "flags": {},
         "shapes": polygons,
         "imagePath": image_path,
-        "imageData": encode_image_to_base64(image_path),
+        "imageData": image_data,
         "imageHeight": size[0],
         "imageWidth": size[1]
     }
 
     # Save the JSON data to a file
-    json_filename = os.path.splitext(image_path)[0] + '.json'
-    with open(json_filename, "w") as f:
-        json.dump(json_data, f, indent=4)
+    # json_filename = os.path.splitext(image_path)[0] + '.json'
+    # with open(json_filename, "w") as f:
+    #     json.dump(json_data, f, indent=4)
+
+    return json_data
+

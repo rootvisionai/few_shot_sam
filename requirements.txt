@@ -1,0 +1,7 @@
+numpy==1.24.3
+opencv_python==4.7.0.72
+Pillow==9.5.0
+PySimpleGUI==4.60.4
+PyYAML==6.0
+Flask==2.3.2
+waitress==2.1.2
