@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import json
 import base64
+from scipy.ndimage.measurements import label as find_instances
 
 
 def create_xml_singlelabel(xmin, ymin, xmax, ymax, image_name, label):
@@ -84,11 +85,14 @@ def create_xml_multilabel(image_name, labels, bboxes):
         ET.SubElement(bbox_elem, 'ymax').text = str(bbox["coordinates"][3])
 
     # Save XML to file with indentation
+    # xml_filename = os.path.splitext(image_name)[0] + '.xml'
+    # with open(xml_filename, 'wb') as xml_file:
+    #     xml_str = (ET.tostring(annotation)).decode("utf-8")
+    #     xml_dom = xml.dom.minidom.parseString(xml_str)
+    #     xml_file.write(xml_dom.toprettyxml(encoding='utf-8'))
+
     xml_filename = os.path.splitext(image_name)[0] + '.xml'
-    with open(xml_filename, 'wb') as xml_file:
-        xml_str = (ET.tostring(annotation)).decode("utf-8")
-        # xml_dom = xml.dom.minidom.parseString(xml_str)
-        # xml_file.write(xml_dom.toprettyxml(encoding='utf-8'))
+    xml_str = (ET.tostring(annotation)).decode("utf-8")
 
     print(f'Created Pascal VOC XML file with indentation: {xml_filename}')
     return xml_str
@@ -103,25 +107,34 @@ def generate_polygons_from_mask(polygons, mask, label, polygon_resolution):
     Returns:
         list: A list of dictionaries, each containing the label and points of a polygon.
     """
-    # Find the contours in the binary mask
-    contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
 
     # Generate polygons from the contours
-    for i, contour in enumerate(contours):
-        if int(len(contour)*polygon_resolution)>0:
-            points = contour.squeeze()[np.arange(0,
-                                                 len(contour),
-                                                 int(len(contour)/int(len(contour)*polygon_resolution))
-                                                 )].tolist()
-            polygons.append({
-                "label": label,
-                "points": points,
-                "group_id": None,
-                "shape_type": "polygon",
-                "flags": {}
-            })
+    points_ = []
 
-    return polygons
+    instances, num_instances = find_instances(mask)
+    for k in range(1, num_instances+1, 1):
+        instance = ((instances == k)*1).astype(np.uint8)
+
+        # Find the contours in the binary mask
+        contours, _ = cv2.findContours(instance, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        for i, contour in enumerate(contours):
+            if int(len(contour)*polygon_resolution)>0:
+                points = contour.squeeze()[np.arange(0,
+                                                     len(contour),
+                                                     int(len(contour)/int(len(contour)*polygon_resolution))
+                                                     )].tolist()
+                polygons.append({
+                    "label": label,
+                    "points": points,
+                    "group_id": None,
+                    "shape_type": "polygon",
+                    "flags": {}
+                })
+                points_.append(points)
+
+    return polygons, points_
 
 def create_polygon_json(polygons, image_path, image_data, size=(1080,1440)):
     """

@@ -8,7 +8,7 @@ import cv2
 import json
 
 import server_utils as utils
-import annotations
+import backend.annotations as annotations
 from exact_solution import ExactSolution
 
 from segment_anything import sam_model_registry, SamPredictor
@@ -24,15 +24,17 @@ app = Flask(__name__)
 def extract_features():
 
     """
+
     input: {
-        "image": [base64_encoded_image, ...],
+        "images": [base64_encoded_image, ...],
         "annotations": {
             [
-                {"coordinates": {"positive": [x, y], "negative": [x, y]}, "label": "label_name1"},
+                {"coordinates": {"positive": [x, y], "negative": [x, y]}, "label": "label_name1", image_id: "0", "image_path"},
                 ...
             ]
         }
     }
+
     output:
     "package": {
         "label_name": {
@@ -50,12 +52,13 @@ def extract_features():
 
     embeddings = []
     n_embeddings = []
-    for i, image_data in enumerate(data['image']):
-        image = utils.get_image(image_data)
+    for i, _ in enumerate(data['annotations']):
         annotations = data['annotations'][i]
 
         coordinates = annotations["coordinates"]
         label = annotations["label"]
+        image_id = int(annotations["image_id"])
+        image = utils.get_image(data["images"][image_id])
 
         positive_coord = coordinates["positive"]
         negative_coord = coordinates["negative"]
@@ -137,7 +140,7 @@ def generate_mask(gen_type):
                 )
                 predictions = linear_model.infer(features)
 
-                print(f"HIGHEST SIMILARITY: {torch.max(predictions).item()}")
+                print("---> Prediction model is ready")
                 # similarity_maps = torch.einsum('bij->ij', similarity_maps)
 
                 yx_multi = (predictions == 1.).nonzero()  # this can be changed later
@@ -154,6 +157,7 @@ def generate_mask(gen_type):
                         return jsonify({'matching_points': matching_points, "error": error_text})
 
                     l_ = np.ones((1,))
+                    print("---> Generating mask")
                     mask_, scores, logits = predictor.predict(
                         point_coords=np.array([[xy["x"], xy["y"]]]).astype(int),
                         point_labels=l_,
@@ -162,7 +166,7 @@ def generate_mask(gen_type):
                     mask_ = mask_.astype(np.uint8)
                     mask_ = cv2.resize(mask_[0], (q_image_shape[1], q_image_shape[0]))
 
-                    polygons = annotations.generate_polygons_from_mask(
+                    polygons, points_ = annotations.generate_polygons_from_mask(
                         polygons=polygons,
                         mask=mask_,
                         label=label_str,
@@ -172,22 +176,31 @@ def generate_mask(gen_type):
                     masks.append(mask_)
 
                     # create xml file from the coordinates
-                    coordinates = np.nonzero(mask_)
-                    y0, y1, x0, x1 = coordinates[0].min(), coordinates[0].max(), coordinates[1].min(), coordinates[1].max()
-                    bboxes.append({
-                        "coordinates": [int(x0), int(y0), int(x1), int(y1)],
-                        "format": "xyxy",
-                        "label": "label_str"
-                    })
+                    if len(points_)>0:
+                        for cnt_p, pts_ in enumerate(points_):
+                            # coordinates = np.nonzero(mask_)
+                            if len(pts_) >= 3:
+                                print(f"---> Finding bounding box: {cnt_p}/{len(points_)}")
+                                pts = np.array([np.array(pt) for pt in pts_])
+                                y0, y1, x0, x1 = pts[:, 0].min(), pts[:, 0].max(), pts[:, 1].min(), pts[:, 1].max()
+                                bboxes.append({
+                                    "coordinates": [int(x0), int(y0), int(x1), int(y1)],
+                                    "format": "xyxy",
+                                    "label": "label_str"
+                                })
 
-                    labels_str.append(label_str)
-                    labels_int.append(label_int)
+                                labels_str.append(label_str)
+                                labels_int.append(label_int)
 
             if len(masks) > 0:
+                print("---> Merging masks")
                 masks_transformed = utils.merge_multilabel_masks(masks, labels_int, COLORMAP=cfg.COLORMAP)
                 masks_transformed = masks_transformed * 255
 
+                print("---> Creating bounding box annotations")
                 pascal_xml = annotations.create_xml_multilabel(image_name=image_path, labels=labels_str, bboxes=bboxes)
+
+                print("---> Creating polygon annotations")
                 coco_json = annotations.create_polygon_json(image_path=image_path, image_data=image_data, polygons=polygons, size=masks_transformed.shape)
 
                 if gen_type == "annotation":
@@ -244,4 +257,5 @@ if __name__ == '__main__':
             fp.write("")
     
     logger = utils.get_logger(log_path='./backend/logs/file.log')
-    serve(app, host="0.0.0.0", port=8080)
+    app.run(host = "0.0.0.0", port=8080, debug=False)
+    # serve(app, host="0.0.0.0", port=8080)

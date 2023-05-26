@@ -4,6 +4,8 @@ import json
 import cv2
 import PySimpleGUI as sg
 import interface_utils as utils
+import glob, os
+
 
 def relabel_or_continue():
     sg.theme('DarkAmber')   # Add a touch of color
@@ -77,57 +79,62 @@ def click_on_point(img):
         return [None]
 
 if __name__ == "__main__":
-    image_path = "test.jpg"
-    init_image = utils.import_image(image_path)
-    image_shape = init_image.shape
-    window_size = (512, 512)
 
-    image = cv2.resize(copy.deepcopy(init_image), (window_size[0], window_size[1]))
 
     annotations = []
-    while True:
-        print("CLICK ON POSITIVE POINTS")
-        points = click_on_point(img=image)
-        positive_points = []
-        if not None in points:
-            for pt in points:
-                xy = utils.adapt_point(
-                    {"x": pt[0], "y": pt[1]},
-                    initial_shape=image.shape[0:2],
-                    final_shape=image_shape[0:2]
-                )
-                positive_points.append([xy["x"], xy["y"]])
+    encoded_images = []
+    image_paths = []
+    for image_id, image_path in enumerate(glob.glob(os.path.join("..", "support_images", "*.jpg"))):
+        init_image = utils.import_image(image_path)
+        image_shape = init_image.shape
+        window_size = (512, 512)
+        image = cv2.resize(copy.deepcopy(init_image), (window_size[0], window_size[1]))
+        while True:
+            print("CLICK ON POSITIVE POINTS")
+            points = click_on_point(img=image)
+            positive_points = []
+            if not None in points:
+                for pt in points:
+                    xy = utils.adapt_point(
+                        {"x": pt[0], "y": pt[1]},
+                        initial_shape=image.shape[0:2],
+                        final_shape=image_shape[0:2]
+                    )
+                    positive_points.append([xy["x"], xy["y"]])
 
-        print("CLICK ON NEGATIVE POINTS")
-        points = click_on_point(img=image)
-        negative_points = []
-        if not None in points:
-            for pt in points:
-                xy = utils.adapt_point(
-                    {"x": pt[0], "y": pt[1]},
-                    initial_shape=image.shape[0:2],
-                    final_shape=image_shape[0:2]
-                )
-                negative_points.append([xy["x"], xy["y"]])
+            print("CLICK ON NEGATIVE POINTS")
+            points = click_on_point(img=image)
+            negative_points = []
+            if not None in points:
+                for pt in points:
+                    xy = utils.adapt_point(
+                        {"x": pt[0], "y": pt[1]},
+                        initial_shape=image.shape[0:2],
+                        final_shape=image_shape[0:2]
+                    )
+                    negative_points.append([xy["x"], xy["y"]])
 
-        label, event = relabel_or_continue()
+            label, event = relabel_or_continue()
 
-        annotations.append({
-            "coordinates": {"positive": positive_points, "negative": negative_points},
-            "label": label
-        })
+            annotations.append({
+                "coordinates": {"positive": positive_points, "negative": negative_points},
+                "label": label,
+                "image_id": image_id,
+                "image_path": image_path
+            })
 
-        if event == "END":
-            break
-        elif event == "CANCEL":
-            break
-        else:
-            pass
+            if event == "END":
+                break
+            elif event == "CANCEL":
+                break
+            else:
+                pass
+
+        encoded_images.append(utils.numpy_to_base64(init_image))
 
     json_file = {
         "annotations": annotations,
-        "image": [utils.numpy_to_base64(init_image)],
-        "image_path": image_path
+        "images": encoded_images,
     }
 
     with open("request_content.json", "w") as fp:

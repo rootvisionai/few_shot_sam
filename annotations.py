@@ -57,7 +57,7 @@ def create_xml_multilabel(image_name, labels, bboxes):
     annotation = ET.Element('annotation')
     ET.SubElement(annotation, 'folder').text = 'images'
     ET.SubElement(annotation, 'filename').text = image_name
-    ET.SubElement(annotation, 'path').text = os.path.abspath(image_name)
+    ET.SubElement(annotation, 'path').text = image_name
 
     source = ET.SubElement(annotation, 'source')
     ET.SubElement(source, 'database').text = 'Unknown'
