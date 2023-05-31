@@ -3,8 +3,6 @@ import os
 import xml.dom.minidom
 import cv2
 import numpy as np
-import json
-import base64
 from scipy.ndimage.measurements import label as find_instances
 
 
@@ -91,10 +89,8 @@ def create_xml_multilabel(image_name, labels, bboxes):
     #     xml_dom = xml.dom.minidom.parseString(xml_str)
     #     xml_file.write(xml_dom.toprettyxml(encoding='utf-8'))
 
-    xml_filename = os.path.splitext(image_name)[0] + '.xml'
     xml_str = (ET.tostring(annotation)).decode("utf-8")
 
-    print(f'Created Pascal VOC XML file with indentation: {xml_filename}')
     return xml_str
 
 def generate_polygons_from_mask(polygons, mask, label, polygon_resolution):

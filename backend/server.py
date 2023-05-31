@@ -20,6 +20,11 @@ model_to_checkpoint_map = {
 
 app = Flask(__name__)
 
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return json.dumps({"status": "active"})
+
 @app.route('/extract_features', methods=['POST'])
 def extract_features():
 
@@ -89,7 +94,7 @@ def extract_features():
     return json.dumps(response)
 
 @app.route('/generate/<gen_type>', methods=['POST'])
-def generate_mask(gen_type):
+def generate(gen_type):
     """
     input: numpy embedding vectors
     output: binary mask
@@ -257,5 +262,5 @@ if __name__ == '__main__':
             fp.write("")
     
     logger = utils.get_logger(log_path='./backend/logs/file.log')
-    app.run(host = "0.0.0.0", port=8080, debug=False)
-    # serve(app, host="0.0.0.0", port=8080)
+    # app.run(host = "0.0.0.0", port=8081, debug=False)
+    serve(app, host="0.0.0.0", port=8081)

@@ -150,3 +150,28 @@ too many indices for array: array is 1-dimensional, but 2 were indexed
 --line 201
 [Errno 2] No such file or directory: '../support_images/test.xml'
 2023-05-26 17:46:00,211 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-05-31 09:33:50,929 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 166
+An image must be set with .set_image(...) before mask prediction.
+2023-05-31 09:35:01,126 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 166
+An image must be set with .set_image(...) before mask prediction.
+2023-05-31 09:36:33,686 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 166
+An image must be set with .set_image(...) before mask prediction.
+2023-05-31 09:37:32,021 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 166
+An image must be set with .set_image(...) before mask prediction.
+2023-05-31 09:38:59,814 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 166
+repeat_interleave() received an invalid combination of arguments - got (NoneType, int, dim=int), but expected one of:
+ * (Tensor input, Tensor repeats, int dim, *, int output_size)
+ * (Tensor repeats, *, int output_size)
+      didn't match because some of the keywords were incorrect: dim
+ * (Tensor input, int repeats, int dim, *, int output_size)
+
