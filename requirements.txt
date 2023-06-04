@@ -6,3 +6,4 @@ PyYAML==6.0
 Flask==2.3.2
 waitress==2.1.2
 tqdm==4.65.0
+scipy==1.10.1
