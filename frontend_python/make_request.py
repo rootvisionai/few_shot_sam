@@ -7,7 +7,7 @@ import time, os
 url = "http://fewshotsam.rootvisionai.net/forwarder/extract_features"  # replace with your actual endpoint
 
 # make get request
-response = os.system("curl --request GET http://localhost:8080/health")
+response = os.system("curl --request GET http://fewshotsam.rootvisionai.net/health")
 print(response)
 
 # Convert json to dict
@@ -23,8 +23,9 @@ headers = {
 t0 = time.time()
 response = requests.post(url, data=json.dumps(data_json), headers=headers)
 t1 = time.time()
+print(response.text)
 data_json = json.loads(response.text)
-image_path = "../support_images/test.jpg"
+image_path = "../query_images/test.jpg"
 data_json["image_path"] = image_path
 init_image = utils.import_image(image_path)
 data_json["image"] = utils.numpy_to_base64(init_image)

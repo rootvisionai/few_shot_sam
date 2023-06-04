@@ -8,6 +8,7 @@ WORKDIR /
 COPY ./backend ./backend
 COPY ./requirements.txt ./requirements.txt
 COPY ./config.yml ./config.yml
+COPY entrypoint.sh /entrypoint.sh
 
 # Update the sources list
 RUN apt-get update && apt-get install -y \
@@ -32,5 +33,5 @@ EXPOSE 8080
 ENV NAME few_sam
 
 # Run app.py when the container launches
-CMD ["python", "./backend/server.py"]
-CMD ["python", "./backend/forwarder.py"]
+RUN chmod +x /entrypoint.sh ./backend/server.py ./backend/forwarder.py
+ENTRYPOINT ["/entrypoint.sh"]
