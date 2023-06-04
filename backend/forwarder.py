@@ -27,6 +27,7 @@ class Forwarder:
         while True:
             if not self.in_queue.empty() and len(self.out_dict) < 4:
                 data = self.in_queue.get()
+                print(f"FORWARDING TO {data['url']}")
                 response = requests.post(
                     data["url"],
                     data=json.dumps(data["data"]),
