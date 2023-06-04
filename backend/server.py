@@ -9,7 +9,7 @@ import json
 import time
 
 import server_utils as utils
-import backend.annotations as annotations
+import annotations as annotations
 from exact_solution import ExactSolution
 
 from segment_anything import sam_model_registry, SamPredictor
@@ -271,6 +271,8 @@ if __name__ == '__main__':
     cfg = utils.load_config("./config.yml")
 
     checkpoint = model_to_checkpoint_map[cfg.model]
+    utils.initialize_model(checkpoint)
+
     sam = sam_model_registry[cfg.model](checkpoint=checkpoint)
     sam.to(device=cfg.device)
     predictor = SamPredictor(sam)

@@ -7,7 +7,6 @@ WORKDIR /
 # Copy the current directory contents into the container at /app
 COPY ./backend ./backend
 COPY ./requirements.txt ./requirements.txt
-COPY ./checkpoints ./checkpoints
 COPY ./config.yml ./config.yml
 
 # Update the sources list

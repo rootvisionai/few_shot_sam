@@ -7,6 +7,9 @@ import types
 import numpy as np
 import torch
 import logging
+import os
+import requests
+import tqdm
 
 
 def get_image(image_data):
@@ -17,6 +20,25 @@ def get_image(image_data):
     image.paste(image_)
     image = np.asarray(image)
     return image
+
+def initialize_model(file_path):
+    if not os.path.isdir("./checkpoints"):
+        os.makedirs("./checkpoints")
+
+    if not os.path.isfile(file_path):
+        checkpoint_split = file_path.split("/")[-1]
+        url = 'https://dl.fbaipublicfiles.com/segment_anything/'+checkpoint_split  # The URL of the file you want to download
+        response = requests.get(url, stream=True)
+
+        # Get the size of the content (in bytes)
+        total_size = int(response.headers.get('content-length', 0))
+
+        # Block size to be displayed during the download process (1 Kilobyte)
+        block_size = 1024
+
+        with open(file_path, 'wb') as file:
+            for data in tqdm(response.iter_content(block_size), total=total_size//block_size, unit='KB'):
+                file.write(data)
 
 def load_config(path_to_config_yaml="./config.yaml"):
     with open(path_to_config_yaml) as f:
