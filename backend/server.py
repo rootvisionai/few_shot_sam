@@ -283,5 +283,5 @@ if __name__ == '__main__':
             fp.write("")
     
     logger = utils.get_logger(log_path='./backend/logs/file.log')
-    app.run(host = "0.0.0.0", port=8081, debug=False)
-    # serve(app, host="0.0.0.0", port=8081)
+    # app.run(host = "0.0.0.0", port=8081, debug=False)
+    serve(app, host="0.0.0.0", port=8081)
