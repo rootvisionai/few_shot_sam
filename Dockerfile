@@ -27,9 +27,11 @@ RUN pip install git+https://github.com/facebookresearch/segment-anything.git
 
 # Make port 8080 available to the world outside this container
 EXPOSE 8080
+EXPOSE 8080
 
 # Define environment variable
 ENV NAME few_sam
 
 # Run app.py when the container launches
 CMD ["python", "./backend/server.py"]
+CMD ["python", "./backend/forwarder.py"]
