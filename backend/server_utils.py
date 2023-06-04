@@ -37,7 +37,7 @@ def initialize_model(file_path):
         block_size = 1024
 
         with open(file_path, 'wb') as file:
-            for data in tqdm(response.iter_content(block_size), total=total_size//block_size, unit='KB'):
+            for data in tqdm.tqdm(response.iter_content(block_size), total=total_size//block_size, unit='KB'):
                 file.write(data)
 
 def load_config(path_to_config_yaml="./config.yaml"):
