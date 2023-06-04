@@ -8,12 +8,12 @@ import cv2
 import json
 import time
 import queue
-import threading
+# import threading
 
 import server_utils as utils
 import annotations as annotations
 from exact_solution import ExactSolution
-from forwarder import Forwarder
+# from forwarder import Forwarder
 
 from segment_anything import sam_model_registry, SamPredictor
 
@@ -274,47 +274,47 @@ def generate(gen_type):
 
     return jsonify({"error": error_text})
 
-@app.route('/forwarder/extract_features', methods=['POST'])
-def forwarder_extract():
-
-    timestamp = time.time()
-    if not ExtractInQueue.full():
-        ExtractInQueue.put({
-            "url": f"http://{base}/extract_features",
-            "data": request.json,
-            "timestamp": timestamp
-        })
-    else:
-        return json.dumps({"warning": "Queue is full, please wait and try again."})
-
-    while True:
-        if timestamp in ExtractOutDict:
-            response = ExtractOutDict[timestamp]["data"]
-            del ExtractOutDict[timestamp]
-            break
-
-    return response
-
-@app.route('/forwarder/generate/<gen_type>', methods=['POST'])
-def forwarder_generate(gen_type):
-
-    timestamp = time.time()
-    if not GenerateInQueue.full():
-        GenerateInQueue.put({
-            "url": f"http://{base}/generate/{gen_type}",
-            "data": request.json,
-            "timestamp": timestamp
-        })
-    else:
-        return json.dumps({"warning": "Queue is full, please wait and try again."})
-
-    while True:
-        if timestamp in GenerateOutDict:
-            response = GenerateOutDict[timestamp]["data"]
-            del GenerateOutDict[timestamp]
-            break
-
-    return response
+# @app.route('/forwarder/extract_features', methods=['POST'])
+# def forwarder_extract():
+#
+#     timestamp = time.time()
+#     if not ExtractInQueue.full():
+#         ExtractInQueue.put({
+#             "url": f"http://{base}/extract_features",
+#             "data": request.json,
+#             "timestamp": timestamp
+#         })
+#     else:
+#         return json.dumps({"warning": "Queue is full, please wait and try again."})
+#
+#     while True:
+#         if timestamp in ExtractOutDict:
+#             response = ExtractOutDict[timestamp]["data"]
+#             del ExtractOutDict[timestamp]
+#             break
+#
+#     return response
+#
+# @app.route('/forwarder/generate/<gen_type>', methods=['POST'])
+# def forwarder_generate(gen_type):
+#
+#     timestamp = time.time()
+#     if not GenerateInQueue.full():
+#         GenerateInQueue.put({
+#             "url": f"http://{base}/generate/{gen_type}",
+#             "data": request.json,
+#             "timestamp": timestamp
+#         })
+#     else:
+#         return json.dumps({"warning": "Queue is full, please wait and try again."})
+#
+#     while True:
+#         if timestamp in GenerateOutDict:
+#             response = GenerateOutDict[timestamp]["data"]
+#             del GenerateOutDict[timestamp]
+#             break
+#
+#     return response
 
 def run_forwarder(forwarder):
     forwarder.run()
@@ -339,25 +339,25 @@ if __name__ == '__main__':
     
     logger = utils.get_logger(log_path='./backend/logs/file.log')
 
-    forwarder_extract = Forwarder(
-        in_queue=ExtractInQueue,
-        out_dict=ExtractOutDict,
-        freq=10
-    )
-
-    forwarder_generate = Forwarder(
-        in_queue=GenerateInQueue,
-        out_dict=GenerateOutDict,
-        freq=10
-    )
-
-    fps = []
-    fps.append(threading.Thread(target=run_forwarder, args=(forwarder_extract,)))
-    fps.append(threading.Thread(target=run_forwarder, args=(forwarder_generate,)))
-
-    for fp in fps:
-        fp.daemon = True
-        fp.start()
+    # forwarder_extract = Forwarder(
+    #     in_queue=ExtractInQueue,
+    #     out_dict=ExtractOutDict,
+    #     freq=10
+    # )
+    #
+    # forwarder_generate = Forwarder(
+    #     in_queue=GenerateInQueue,
+    #     out_dict=GenerateOutDict,
+    #     freq=10
+    # )
+    #
+    # fps = []
+    # fps.append(threading.Thread(target=run_forwarder, args=(forwarder_extract,)))
+    # fps.append(threading.Thread(target=run_forwarder, args=(forwarder_generate,)))
+    #
+    # for fp in fps:
+    #     fp.daemon = True
+    #     fp.start()
 
     # app.run(host = "0.0.0.0", port=8080, debug=False)
     serve(app, host="0.0.0.0", port=8080)

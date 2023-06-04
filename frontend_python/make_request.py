@@ -4,7 +4,7 @@ import interface_utils as utils
 import time, os
 
 # Define the URL of the endpoint: http://fewshotsam.rootvisionai.net
-url = "http://localhost:8080/forwarder/extract_features"  # replace with your actual endpoint
+url = "http://localhost:8080/extract_features"  # replace with your actual endpoint
 
 # make get request
 response = os.system("curl --request GET http://localhost:8080/health")
@@ -37,7 +37,7 @@ except:
     print(data_json)
 
 # Define the URL of the endpoint
-url = "http://localhost:8080/forwarder/generate/all"
+url = "http://localhost:8080/generate/all"
 
 # Send the POST request
 t1 = time.time()

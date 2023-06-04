@@ -89,7 +89,8 @@ def get_similarity(support_emb, query_features):
     return cos_sim
 
 def get_embedding(predictor, image, point):
-    predictor.set_image(image)
+    with torch.no_grad():
+        predictor.set_image(image)
     features = predictor.features
     point_ = {"y": int(point[1]), "x": int(point[0])}
     point_adapted = adapt_point(point_, initial_shape=image.shape[0:2], final_shape=features.shape[-2:])
