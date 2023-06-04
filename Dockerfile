@@ -33,5 +33,4 @@ EXPOSE 8080
 ENV NAME few_sam
 
 # Run app.py when the container launches
-RUN chmod +x /entrypoint.sh ./backend/server.py ./backend/forwarder.py
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["python", "./backend/server.py"]
