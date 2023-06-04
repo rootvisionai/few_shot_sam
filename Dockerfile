@@ -8,7 +8,6 @@ WORKDIR /
 COPY ./backend ./backend
 COPY ./requirements.txt ./requirements.txt
 COPY ./config.yml ./config.yml
-COPY entrypoint.sh /entrypoint.sh
 
 # Update the sources list
 RUN apt-get update && apt-get install -y \
