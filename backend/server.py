@@ -6,6 +6,7 @@ import os
 import sys
 import cv2
 import json
+import time
 
 import server_utils as utils
 import backend.annotations as annotations
@@ -51,44 +52,52 @@ def extract_features():
     "error": ...
     """
 
-    # try:
-    data = request.json
-    support_package = {}
+    try:
+        data = request.json
+        support_package = {}
 
-    embeddings = []
-    n_embeddings = []
-    for i, _ in enumerate(data['annotations']):
-        annotations = data['annotations'][i]
+        embeddings = []
+        n_embeddings = []
+        for i, _ in enumerate(data['annotations']):
+            annotations = data['annotations'][i]
+            if not all([elm in annotations for elm in ["coordinates", "label", "image_id"]]):
+                continue
 
-        coordinates = annotations["coordinates"]
-        label = annotations["label"]
-        image_id = int(annotations["image_id"])
-        image = utils.get_image(data["images"][image_id])
+            coordinates = annotations["coordinates"]
+            label = annotations["label"]
+            image_id = int(annotations["image_id"])
+            image = utils.get_image(data["images"][image_id])
 
-        positive_coord = coordinates["positive"]
-        negative_coord = coordinates["negative"]
+            positive_coord = coordinates["positive"]
+            negative_coord = coordinates["negative"]
 
-        if not None in positive_coord:
-            for pt in positive_coord:
-                embedding = utils.get_embedding(predictor, image, pt)
-                embeddings.append(embedding.cpu().numpy().tolist())
+            t0 = time.time()
+            if not None in positive_coord:
+                for pt in positive_coord:
+                    embedding = utils.get_embedding(predictor, image, pt)
+                    embeddings.append(embedding.cpu().numpy().tolist())
+            t1 = time.time()
+            print(f"POSITIVE POINT INFERENCE TIME: {t1-t0}")
 
-        if not None in negative_coord:
-            for pt in negative_coord:
-                n_embedding = utils.get_embedding(predictor, image, pt)
-                n_embeddings.append(n_embedding.cpu().numpy().tolist())
+            t0 = time.time()
+            if not None in negative_coord:
+                for pt in negative_coord:
+                    n_embedding = utils.get_embedding(predictor, image, pt)
+                    n_embeddings.append(n_embedding.cpu().numpy().tolist())
+            t1 = time.time()
+            print(f"NEGATIVE POINT INFERENCE TIME: {t1 - t0}")
 
-        if label not in support_package:
-            support_package[label] = {"positive": [], "negative": []}
+            if label not in support_package:
+                support_package[label] = {"positive": [], "negative": []}
 
-        support_package[label]["positive"].append(embeddings)
-        support_package[label]["negative"].append(n_embeddings)
+            support_package[label]["positive"].append(embeddings)
+            support_package[label]["negative"].append(n_embeddings)
 
-    # except Exception as e:
-    #     exc_type, exc_obj, exc_tb = sys.exc_info()
-    #     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    #     error_text = f"{exc_type}\n-file {fname}\n--line {exc_tb.tb_lineno}\n{e}"
-    #     logger.error(error_text)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        error_text = f"{exc_type}\n-file {fname}\n--line {exc_tb.tb_lineno}\n{e}"
+        logger.error(error_text)
 
     response = {'package': support_package, "error": "error_text"}
     return json.dumps(response)
@@ -115,9 +124,11 @@ def generate(gen_type):
             for label_int, label_str in enumerate(support_package):
                 image = utils.get_image(image_data)
                 q_image_shape = image.shape
+                t0 = time.time()
                 predictor.set_image(image)
                 features = predictor.features
-
+                t1 = time.time()
+                print(f"SAM INFERENCE TIME: {t1-t0}")
                 linear_model_labels_int = []
                 embedding_collection = []
                 for i, embedding in enumerate(support_package[label_str]["positive"][0]):
@@ -137,6 +148,7 @@ def generate(gen_type):
                 embedding_collection = torch.stack(embedding_collection, dim=0)
                 linear_model_labels_int = np.array(linear_model_labels_int)
 
+                t0 = time.time()
                 linear_model = ExactSolution(
                     device=cfg.device,
                     embedding_collection=embedding_collection,
@@ -144,30 +156,34 @@ def generate(gen_type):
                     threshold=cfg.threshold
                 )
                 predictions = linear_model.infer(features)
-
-                print("---> Prediction model is ready")
-                # similarity_maps = torch.einsum('bij->ij', similarity_maps)
+                t1 = time.time()
+                print(f"EXACT SOLUTION INFERENCE TIME: {t1 - t0}")
 
                 yx_multi = (predictions == 1.).nonzero()  # this can be changed later
 
                 for yx in yx_multi:
+                    t0 = time.time()
                     xy = utils.adapt_point(
                         {"x": yx[1].item(), "y": yx[0].item()},
                         initial_shape=features.shape[-2:],
                         final_shape=image.shape[0:2]
                     )
+                    t1 = time.time()
+                    print(f"ADAPT POINT TIME: {t1 - t0}")
 
                     matching_points[label_str] = {"x": xy["x"], "y": xy["y"]}
                     if gen_type == "point":
                         return jsonify({'matching_points': matching_points, "error": error_text})
 
                     l_ = np.ones((1,))
-                    print("---> Generating mask")
+                    t0 = time.time()
                     mask_, scores, logits = predictor.predict(
                         point_coords=np.array([[xy["x"], xy["y"]]]).astype(int),
                         point_labels=l_,
                         multimask_output=True,
                     )
+                    t1 = time.time()
+                    print(f"MASK GEN INFERENCE TIME: {t1 - t0}")
                     mask_ = mask_.astype(np.uint8)
                     mask_ = cv2.resize(mask_[0], (q_image_shape[1], q_image_shape[0]))
 
@@ -180,6 +196,7 @@ def generate(gen_type):
 
                     masks.append(mask_)
 
+                    t0 = time.time()
                     # create xml file from the coordinates
                     if len(points_)>0:
                         for cnt_p, pts_ in enumerate(points_):
@@ -196,6 +213,10 @@ def generate(gen_type):
 
                                 labels_str.append(label_str)
                                 labels_int.append(label_int)
+
+                    t1 = time.time()
+                    print(f"BBOX GENERATION TIME: {t1 - t0}")
+
 
             if len(masks) > 0:
                 print("---> Merging masks")
@@ -262,5 +283,5 @@ if __name__ == '__main__':
             fp.write("")
     
     logger = utils.get_logger(log_path='./backend/logs/file.log')
-    # app.run(host = "0.0.0.0", port=8081, debug=False)
-    serve(app, host="0.0.0.0", port=8081)
+    app.run(host = "0.0.0.0", port=8081, debug=False)
+    # serve(app, host="0.0.0.0", port=8081)

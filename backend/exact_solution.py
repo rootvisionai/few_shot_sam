@@ -60,7 +60,8 @@ class ExactSolution(torch.nn.Module):
         return predictions
 
     def forward(self, embedding):
-        out = self.linear(l2_norm(embedding))
+        out = self.linear(embedding)
+        out = torch.where(out > 1, 2-out, out)
         out = torch.nn.functional.softmax(out, dim=-1)
 
         # apply adaptive threshold
