@@ -1,17 +1,13 @@
-import torch
-from flask import Flask, request, jsonify
+from flask import Flask, request
 import requests
 from waitress import serve
-import numpy as np
-import os
-import sys
-import cv2
 import json
 import queue
 import time
 import threading
 
 import server_utils as utils
+
 
 cfg = utils.load_config("./config.yml")
 app = Flask(__name__)
@@ -20,6 +16,7 @@ ExtractOutDict = {}
 GenerateInQueue = queue.Queue(maxsize=4)
 GenerateOutDict = {}
 base = "localhost:8081"
+
 class Forwarder:
     def __init__(self, in_queue, out_dict, freq):
         self.freq = freq
