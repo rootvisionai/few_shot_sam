@@ -175,3 +175,15 @@ repeat_interleave() received an invalid combination of arguments - got (NoneType
       didn't match because some of the keywords were incorrect: dim
  * (Tensor input, int repeats, int dim, *, int output_size)
 
+2023-06-03 10:20:29,276 - server_utils - ERROR - <class 'KeyError'>
+-file server.py
+--line 64
+'coordinates'
+2023-06-03 10:21:02,611 - server_utils - ERROR - <class 'KeyError'>
+-file server.py
+--line 64
+'coordinates'
+2023-06-03 16:04:42,993 - server_utils - ERROR - <class 'KeyError'>
+-file server.py
+--line 123
+'image_path'
