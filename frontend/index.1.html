@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Upload Image and Save Clicks</h2>
+
+<input type="file" id="imgUploader" name="imgUploader" accept="image/*">
+<br>
+<img id="uploadedImg" style="max-width: 300px;" hidden>
+<br>
+<input type="text" id="labelTextBox" placeholder="Enter label name">
+<br>
+<button id="addLabelBtn" onclick="addLabel()">Add Label</button>
+<button id="startLabelingBtn" onclick="startLabeling()" hidden>Start Labeling</button>
+<button id="savePositivePointsBtn" onclick="savePositivePoints()" hidden>Save Positive Points</button>
+<button id="saveNegativePointsBtn" onclick="saveNegativePoints()" hidden>Save Negative Points</button>
+<button id="nextImageBtn" onclick="nextImage()" hidden>Next Image</button>
+<button id="endBtn" onclick="endProcess()" hidden>End</button>
+
+<script>
+    let imgUploader = document.getElementById('imgUploader');
+    let uploadedImg = document.getElementById('uploadedImg');
+    let labelTextBox = document.getElementById('labelTextBox');
+    let addLabelBtn = document.getElementById('addLabelBtn');
+    let startLabelingBtn = document.getElementById('startLabelingBtn');
+    let savePositivePointsBtn = document.getElementById('savePositivePointsBtn');
+    let saveNegativePointsBtn = document.getElementById('saveNegativePointsBtn');
+    let nextImageBtn = document.getElementById('nextImageBtn');
+    let endBtn = document.getElementById('endBtn');
+
+    let images = [];
+    let currentImageIndex = -1;
+    let currentAnnotations = [];
+    let jsonData = {
+        image: [],
+        annotations: []
+    };
+
+    function resetLabeling() {
+        labelTextBox.value = '';
+        startLabelingBtn.hidden = true;
+        savePositivePointsBtn.hidden = true;
+        saveNegativePointsBtn.hidden = true;
+        nextImageBtn.hidden = true;
+        endBtn.hidden = true;
+        currentImageIndex = -1;
+        currentAnnotations = [];
+    }
+
+    function startLabeling() {
+        if (labelTextBox.value.trim() !== '') {
+            startLabelingBtn.hidden = true;
+            savePositivePointsBtn.hidden = false;
+        }
+    }
+
+    function savePositivePoints() {
+        currentAnnotations.push({
+            coordinates: {
+                positive: currentAnnotations[currentAnnotations.length - 1].coordinates.positive.concat(labels[currentLabelIndex].positive),
+                negative: []
+            },
+            label: labels[currentLabelIndex].name
+        });
+
+        savePositivePointsBtn.hidden = true;
+        saveNegativePointsBtn.hidden = false;
+    }
+
+    function saveNegativePoints() {
+        currentAnnotations[currentAnnotations.length - 1].coordinates.negative = labels[currentLabelIndex].negative;
+
+        saveNegativePointsBtn.hidden = true;
+        if (currentLabelIndex === labels.length - 1) {
+            endBtn.hidden = false;
+        } else {
+            nextImageBtn.hidden = false;
+        }
+    }
+
+    function nextImage() {
+        currentImageIndex += 1;
+        currentAnnotations = [];
+
+        if (currentImageIndex === images.length - 1) {
+            nextImageBtn.hidden = true;
+            savePositivePointsBtn.hidden = false;
+        }
+
+        imgUploader.value = '';
+        uploadedImg.src = '';
+        uploadedImg.hidden = true;
+        labelTextBox.value = '';
+    }
+
+    function endProcess() {
+        jsonData.image.push(images[currentImageIndex]);
+        jsonData.annotations.push(currentAnnotations);
+
+        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonData));
+        let downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "data.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+
+        resetLabeling();
+    }
+
+    imgUploader.onchange = function(event) {
+        let reader = new FileReader();
+        reader.onload = function() {
+            if (reader.readyState === 2) {
+                uploadedImg.src = reader.result;
+                uploadedImg.hidden = false;
+                addLabelBtn.hidden = false;
+                images.push(reader.result);
+            }
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    };
+
+    function addLabel() {
+        let labelName = labelTextBox.value.trim();
+        if (labelName !== '') {
+            labels.push({
+                name: labelName,
+                positive: [],
+                negative: []
+            });
+            labelTextBox.value = '';
+            startLabelingBtn.hidden = false;
+            addLabelBtn.hidden = true;
+            currentLabelIndex = 0;
+        }
+    }
+</script>
+
+</body>
+</html>

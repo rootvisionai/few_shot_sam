@@ -1,0 +1,189 @@
+2023-05-18 13:52:59,198 - server_utils - ERROR - <class 'KeyError'>
+	server.py
+		103
+'image'
+2023-05-18 14:02:22,804 - server_utils - ERROR - <class 'KeyError'>
+	server.py
+		104
+'image_path'
+2023-05-18 14:03:56,143 - server_utils - ERROR - <class 'KeyError'>
+	server.py
+		104
+'image_path'
+2023-05-18 14:06:07,612 - server_utils - ERROR - <class 'KeyError'>
+	server.py
+		104
+'image_path'
+2023-05-18 14:07:25,293 - server_utils - ERROR - <class 'KeyError'>
+	server.py
+		104
+'image_path'
+2023-05-18 14:08:24,371 - server_utils - ERROR - <class 'KeyError'>
+	server.py
+		112
+'positive'
+2023-05-18 14:10:16,948 - server_utils - ERROR - <class 'KeyError'>
+	server.py
+		112
+'positive'
+2023-05-18 14:16:45,755 - server_utils - ERROR - <class 'RuntimeError'>
+	server.py
+		115
+expected scalar type Double but found Float
+2023-05-18 14:20:25,968 - server_utils - ERROR - <class 'RuntimeError'>
+	server.py
+		115
+expected scalar type Double but found Float
+2023-05-18 14:21:46,515 - server_utils - ERROR - <class 'RuntimeError'>
+	server.py
+		115
+shape '[1, 64, 64]' is invalid for input of size 12288
+2023-05-18 15:37:51,012 - server_utils - ERROR - <class 'IndexError'>
+	server.py
+		144
+too many indices for tensor of dimension 1
+2023-05-18 15:42:35,991 - server_utils - ERROR - <class 'FileNotFoundError'>
+-file server.py
+--line 184
+[Errno 2] No such file or directory: 'test.jpg'
+2023-05-18 15:46:31,734 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 196
+Object of type int64 is not JSON serializable
+2023-05-18 15:49:30,755 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 196
+Object of type int64 is not JSON serializable
+2023-05-18 15:53:20,768 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 205
+Object of type int64 is not JSON serializable
+2023-05-18 15:54:19,668 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 205
+Object of type int64 is not JSON serializable
+2023-05-18 15:56:22,663 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 205
+Object of type bytes is not JSON serializable
+2023-05-18 15:59:54,110 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 205
+Object of type Document is not JSON serializable
+2023-05-18 16:03:02,593 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 205
+Object of type bytes is not JSON serializable
+2023-05-19 08:37:52,995 - server_utils - ERROR - <class 'KeyError'>
+-file server.py
+--line 187
+0
+2023-05-20 14:26:40,008 - server_utils - ERROR - <class 'AttributeError'>
+-file server.py
+--line 130
+'list' object has no attribute 'shape'
+2023-05-20 14:28:39,132 - server_utils - ERROR - <class 'AttributeError'>
+-file server.py
+--line 132
+'numpy.ndarray' object has no attribute 'to'
+2023-05-20 14:31:01,515 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 132
+expected scalar type Double but found Int
+2023-05-20 14:34:47,559 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-05-20 14:39:30,757 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-05-20 14:49:44,959 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-05-20 14:50:22,191 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-05-20 14:50:53,948 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-05-20 15:31:57,044 - server_utils - ERROR - Given generate/asdfadsf is wrong.
+2023-05-26 12:23:47,118 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 179
+zero-size array to reduction operation minimum which has no identity
+2023-05-26 12:25:50,931 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 179
+zero-size array to reduction operation minimum which has no identity
+2023-05-26 12:36:16,005 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 179
+zero-size array to reduction operation minimum which has no identity
+2023-05-26 12:43:50,521 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 179
+zero-size array to reduction operation minimum which has no identity
+2023-05-26 12:44:35,390 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 179
+zero-size array to reduction operation minimum which has no identity
+2023-05-26 13:27:27,552 - server_utils - ERROR - <class 'IndexError'>
+-file server.py
+--line 182
+index 1 is out of bounds for axis 0 with size 1
+2023-05-26 13:31:24,778 - server_utils - ERROR - <class 'FileNotFoundError'>
+-file server.py
+--line 197
+[Errno 2] No such file or directory: '../support_images/test.xml'
+2023-05-26 13:35:17,331 - server_utils - ERROR - <class 'FileNotFoundError'>
+-file server.py
+--line 197
+[Errno 2] No such file or directory: '../support_images/test.xml'
+2023-05-26 16:29:17,726 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 168
+object of type 'int' has no len()
+2023-05-26 16:34:34,993 - server_utils - ERROR - <class 'UnboundLocalError'>
+-file server.py
+--line 168
+cannot access local variable 'instance' where it is not associated with a value
+2023-05-26 16:37:24,026 - server_utils - ERROR - <class 'cv2.error'>
+-file server.py
+--line 168
+OpenCV(4.7.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\contours.cpp:197: error: (-210:Unsupported format or combination of formats) [Start]FindContours supports only CV_8UC1 images when mode != CV_RETR_FLOODFILL otherwise supports CV_32SC1 images only in function 'cvStartFindContours_Impl'
+
+2023-05-26 17:02:41,555 - server_utils - ERROR - <class 'IndexError'>
+-file server.py
+--line 183
+too many indices for array: array is 1-dimensional, but 2 were indexed
+2023-05-26 17:20:31,560 - server_utils - ERROR - <class 'FileNotFoundError'>
+-file server.py
+--line 201
+[Errno 2] No such file or directory: '../support_images/test.xml'
+2023-05-26 17:46:00,211 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-05-31 09:33:50,929 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 166
+An image must be set with .set_image(...) before mask prediction.
+2023-05-31 09:35:01,126 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 166
+An image must be set with .set_image(...) before mask prediction.
+2023-05-31 09:36:33,686 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 166
+An image must be set with .set_image(...) before mask prediction.
+2023-05-31 09:37:32,021 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 166
+An image must be set with .set_image(...) before mask prediction.
+2023-05-31 09:38:59,814 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 166
+repeat_interleave() received an invalid combination of arguments - got (NoneType, int, dim=int), but expected one of:
+ * (Tensor input, Tensor repeats, int dim, *, int output_size)
+ * (Tensor repeats, *, int output_size)
+      didn't match because some of the keywords were incorrect: dim
+ * (Tensor input, int repeats, int dim, *, int output_size)
+
+2023-06-03 10:20:29,276 - server_utils - ERROR - <class 'KeyError'>
+-file server.py
+--line 64
+'coordinates'
+2023-06-03 10:21:02,611 - server_utils - ERROR - <class 'KeyError'>
+-file server.py
+--line 64
+'coordinates'
+2023-06-03 16:04:42,993 - server_utils - ERROR - <class 'KeyError'>
+-file server.py
+--line 123
+'image_path'
