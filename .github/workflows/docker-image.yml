@@ -33,20 +33,4 @@ jobs:
         context: .
         push: true
         tags: europe-west4-docker.pkg.dev/few-shot-sam/fsm-artifact-docker/few_shot_sam_backend:${{ steps.version.outputs.version }}
-
-  run:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Login to Google Cloud Registry
-      uses: docker/login-action@v1 
-      with:
-        registry: europe-west4-docker.pkg.dev/few-shot-sam/fsm-artifact-docker/few_shot_sam_backend
-        username: _json_key
-        password: ${{ secrets.GCP_ARTIFACT_REGISTRY_WRITER }}
-
-    - name: Pull and run Docker image
-      run: |
-        docker pull europe-west4-docker.pkg.dev/few-shot-sam/fsm-artifact-docker/few_shot_sam_backend:${{ needs.build.outputs.version }}
-        docker run europe-west4-docker.pkg.dev/few-shot-sam/fsm-artifact-docker/few_shot_sam_backend:${{ needs.build.outputs.version }}
+        
