@@ -65,7 +65,7 @@ class ExactSolution(torch.nn.Module):
         out = torch.nn.functional.softmax(out, dim=-1)
 
         # apply adaptive threshold
-        self.threshold = out[:, 1].max()-0.05 if self.threshold > out[:, 1].max() else self.threshold
+        self.threshold = out[:, 1].max()-0.02 if self.threshold > out[:, 1].max() else self.threshold
         out = torch.where(out >= self.threshold, 1, 0)
 
         # get indexes of maximums

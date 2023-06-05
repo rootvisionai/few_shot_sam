@@ -11,7 +11,7 @@ import queue
 # import threading
 
 import server_utils as utils
-import annotations as annotations
+import annotations
 from exact_solution import ExactSolution
 # from forwarder import Forwarder
 
@@ -230,6 +230,7 @@ def generate(gen_type):
                 print("---> Merging masks")
                 masks_transformed = utils.merge_multilabel_masks(masks, labels_int, COLORMAP=cfg.COLORMAP)
                 masks_transformed = masks_transformed * 255
+                masks_encoded = utils.numpy_to_base64(masks_transformed)
 
                 print("---> Creating bounding box annotations")
                 pascal_xml = annotations.create_xml_multilabel(image_name=image_path, labels=labels_str, bboxes=bboxes)
@@ -249,7 +250,8 @@ def generate(gen_type):
 
                 elif gen_type == "all":
                     response = {
-                            'matching_points': matching_points,
+                            "matching_points": matching_points,
+                            "masks": masks_encoded,
                             "polygons": polygons,
                             "bounding_boxes": bboxes,
                             "coco_json": coco_json,

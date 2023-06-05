@@ -133,3 +133,20 @@ def get_logger(log_path = 'logs/file.log'):
     logger.addHandler(f_handler)
 
     return logger
+
+def numpy_to_base64(image: np.ndarray) -> str:
+    # Ensure the image array is an 8-bit integer
+    if image.dtype != np.uint8:
+        image = (image * 255).astype(np.uint8)
+
+    # Convert numpy array to PIL image
+    pil_image = Image.fromarray(image)
+
+    # Create a BytesIO object and save the image
+    byte_arr = io.BytesIO()
+    pil_image.save(byte_arr, format='JPEG')  # use appropriate format based on your needs
+
+    # Encode BytesIO as base64 and return it
+    base64_encoded_image = base64.b64encode(byte_arr.getvalue()).decode('ascii')  # decode to create a string
+
+    return base64_encoded_image
