@@ -75,6 +75,9 @@ def extract():
             label = annotations["label"]
             image_id = int(annotations["image_id"])
             image = utils.get_image(data["images"][image_id])
+            with torch.no_grad():
+                predictor.set_image(image)
+            features = predictor.features
 
             positive_coord = coordinates["positive"]
             negative_coord = coordinates["negative"]
@@ -82,7 +85,7 @@ def extract():
             t0 = time.time()
             if not None in positive_coord:
                 for pt in positive_coord:
-                    embedding = utils.get_embedding(predictor, image, pt)
+                    embedding = utils.get_embedding(features, image, pt)
                     embeddings.append(embedding.cpu().numpy().tolist())
             t1 = time.time()
             print(f"POSITIVE POINT INFERENCE TIME: {t1-t0}")
@@ -90,7 +93,7 @@ def extract():
             t0 = time.time()
             if not None in negative_coord:
                 for pt in negative_coord:
-                    n_embedding = utils.get_embedding(predictor, image, pt)
+                    n_embedding = utils.get_embedding(features, image, pt)
                     n_embeddings.append(n_embedding.cpu().numpy().tolist())
             t1 = time.time()
             print(f"NEGATIVE POINT INFERENCE TIME: {t1 - t0}")

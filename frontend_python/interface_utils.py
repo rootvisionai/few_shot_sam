@@ -34,3 +34,11 @@ def numpy_to_base64(image: np.ndarray) -> str:
     base64_encoded_image = base64.b64encode(byte_arr.getvalue()).decode('ascii')  # decode to create a string
 
     return base64_encoded_image
+
+def get_image(image_data):
+    # base64 encoded string
+    image_data = base64.b64decode(image_data)
+    image_ = Image.open(io.BytesIO(image_data))
+    image = Image.new("RGB", image_.size)
+    image.paste(image_)
+    return image

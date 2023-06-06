@@ -4,10 +4,11 @@ import interface_utils as utils
 import time, os
 
 # Define the URL of the endpoint: http://fewshotsam.rootvisionai.net
-url = "http://localhost:8080/extract_features"  # replace with your actual endpoint
+base = "localhost:8080"
+url = f"http://{base}/extract_features"  # replace with your actual endpoint
 
 # make get request
-response = os.system("curl --request GET http://localhost:8080/health")
+response = os.system(f"curl --request GET http://{base}/health")
 print(response)
 
 # Convert json to dict
@@ -37,13 +38,15 @@ except:
     print(data_json)
 
 # Define the URL of the endpoint
-url = "http://localhost:8080/generate/all"
+url = f"http://{base}/generate/all"
 
 # Send the POST request
 t1 = time.time()
 response = requests.post(url, data=json.dumps(data_json), headers=headers)
 t2 = time.time()
 data_json = json.loads(response.text)
+masks = utils.get_image(data_json["masks"])
+masks.save("masks.png")
 
 # Print the response
 try:
