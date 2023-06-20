@@ -187,3 +187,90 @@ repeat_interleave() received an invalid combination of arguments - got (NoneType
 -file server.py
 --line 123
 'image_path'
+2023-06-16 09:31:17,785 - server_utils - ERROR - <class 'cv2.error'>
+-file server.py
+--line 205
+OpenCV(4.7.0) :-1: error: (-5:Bad argument) in function 'imwrite'
+> Overload resolution failed:
+>  - imwrite() missing required argument 'img' (pos 2)
+>  - imwrite() missing required argument 'img' (pos 2)
+
+2023-06-18 13:08:29,769 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-06-18 13:09:07,264 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-06-18 13:30:31,506 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 164
+stack(): argument 'tensors' (position 1) must be tuple of Tensors, not Tensor
+2023-06-18 13:31:23,511 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 164
+stack(): argument 'tensors' (position 1) must be tuple of Tensors, not Tensor
+2023-06-18 13:38:25,410 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 164
+stack(): argument 'tensors' (position 1) must be tuple of Tensors, not Tensor
+2023-06-18 16:14:17,440 - server_utils - ERROR - <class 'AttributeError'>
+-file server.py
+--line 86
+shape
+2023-06-18 16:30:00,838 - server_utils - ERROR - <class 'AttributeError'>
+-file server.py
+--line 87
+shape
+2023-06-18 16:30:02,893 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 176
+not enough values to unpack (expected 4, got 3)
+2023-06-18 16:45:12,270 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 180
+not enough values to unpack (expected 4, got 3)
+2023-06-18 18:07:02,734 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 180
+not enough values to unpack (expected 4, got 3)
+2023-06-18 18:10:00,569 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 180
+Input type (torch.cuda.FloatTensor) and weight type (torch.FloatTensor) should be the same
+2023-06-18 18:21:25,814 - server_utils - ERROR - <class 'IndexError'>
+-file server.py
+--line 213
+tuple index out of range
+2023-06-18 18:22:54,478 - server_utils - ERROR - <class 'IndexError'>
+-file server.py
+--line 213
+tuple index out of range
+2023-06-18 18:25:47,706 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 219
+mat1 and mat2 shapes cannot be multiplied (6144x16 and 384x3)
+2023-06-18 18:31:18,395 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 209
+stack(): argument 'tensors' (position 1) must be tuple of Tensors, not Tensor
+2023-06-18 18:33:31,478 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 209
+stack(): argument 'tensors' (position 1) must be tuple of Tensors, not Tensor
+2023-06-18 18:38:16,040 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-06-18 18:53:49,032 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-06-19 00:54:46,039 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-06-19 00:58:11,029 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-06-19 08:58:31,963 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-06-19 09:44:46,373 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 245
+keywords must be strings
+2023-06-20 15:42:13,948 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 206
+int() argument must be a string, a bytes-like object or a real number, not 'dict'
+2023-06-20 15:51:50,701 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 173
+result type Float can't be cast to the desired output type Long
+2023-06-20 17:24:52,125 - server_utils - ERROR - <class 'IndexError'>
+-file server.py
+--line 192
+only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean arrays are valid indices

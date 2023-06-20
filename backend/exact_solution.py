@@ -6,6 +6,8 @@ Created on Sun Jan 24 15:00:24 2021
 """
 import torch
 import numpy as np
+import torchvision.utils
+
 from server_utils import flatten_feature_map, l2_norm
 
 
@@ -57,6 +59,7 @@ class ExactSolution(torch.nn.Module):
             query_features = l2_norm(query_features)[0]
             predictions = self.forward(query_features.float())
             predictions = predictions.reshape(b, h, w).squeeze(0)
+            torchvision.utils.save_image(predictions.cpu().float(), "./intermediate_mask.png")
         return predictions
 
     def forward(self, embedding):
