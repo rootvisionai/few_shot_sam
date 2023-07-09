@@ -10,7 +10,7 @@ labeling:
   bounding_box: 1
   polygon_resolution: 0.3
 
-window_size: [1024, 1024]
+window_size: [512, 512]
 model: vit_h # Faster <<< vit_b, vit_l, vit_h >>> More accurate
 threshold: 0.9
 device: "cuda"

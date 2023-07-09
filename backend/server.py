@@ -215,7 +215,7 @@ def generate(gen_type):
                             if len(pts_) >= 3:
                                 print(f"---> Finding bounding box: {cnt_p}/{len(points_)}")
                                 pts = np.array([np.array(pt) for pt in pts_])
-                                y0, y1, x0, x1 = pts[:, 0].min(), pts[:, 0].max(), pts[:, 1].min(), pts[:, 1].max()
+                                x0, x1 ,y0, y1= pts[:, 0].min(), pts[:, 0].max(), pts[:, 1].min(), pts[:, 1].max()
                                 bboxes.append({
                                     "coordinates": [int(x0), int(y0), int(x1), int(y1)],
                                     "format": "xyxy",
