@@ -207,13 +207,12 @@ def generate(gen_type):
                     )
 
                     for pt in points_:
-
                         bboxes.append({
                             "coordinates": [int(pt[:, 0].min()), int(pt[:, 1].min()), int(pt[:, 0].max()), int(pt[:, 1].max())],
                             "format": "xyxy",
                             "label": label_str
                         })
-
+                        
                     masks.append(mask_)
 
                     labels_str.append(label_str)

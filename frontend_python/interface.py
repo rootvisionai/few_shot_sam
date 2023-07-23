@@ -80,15 +80,16 @@ def click_on_point(img):
 
 if __name__ == "__main__":
 
-
+    cfg = utils.load_config("./config.yml")
     annotations = []
     encoded_images = []
     image_paths = []
-    for image_id, image_path in enumerate(glob.glob(os.path.join("..", "support_images", "*.jpg"))):
+    for image_id, image_path in enumerate(glob.glob(os.path.join(".", "support_images", "*.jpg"))):
         init_image = utils.import_image(image_path)
         image_shape = init_image.shape
-        window_size = (512, 512)
-        image = cv2.resize(copy.deepcopy(init_image), (window_size[0], window_size[1]))
+        ref_width  = cfg.window_size[0] 
+        new_height = int((image_shape[0] / image_shape[1]) * ref_width)  
+        image = cv2.resize(copy.deepcopy(init_image), (ref_width,new_height))
         while True:
             print("CLICK ON POSITIVE POINTS")
             points = click_on_point(img=image)
