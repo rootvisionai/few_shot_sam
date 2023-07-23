@@ -274,3 +274,112 @@ result type Float can't be cast to the desired output type Long
 -file server.py
 --line 192
 only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean arrays are valid indices
+2023-06-21 09:53:35,865 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 166
+SGD.__init__() missing 1 required positional argument: 'params'
+2023-06-21 09:54:29,877 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 166
+SGD.__init__() missing 1 required positional argument: 'params'
+2023-06-21 09:55:19,811 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 166
+SGD.__init__() missing 1 required positional argument: 'params'
+2023-06-21 09:57:55,476 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 166
+SGD.__init__() missing 1 required positional argument: 'params'
+2023-06-21 10:00:03,784 - server_utils - ERROR - <class 'AttributeError'>
+-file server.py
+--line 166
+'ExactSolution' object has no attribute 'linear'
+2023-06-21 10:01:00,648 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 166
+'bool' object is not callable
+2023-06-21 10:14:29,460 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 166
+'bool' object is not callable
+2023-06-21 10:24:17,893 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 166
+expected scalar type Double but found Float
+2023-06-21 10:25:31,981 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 166
+"nll_loss_forward_reduce_cuda_kernel_2d_index" not implemented for 'Int'
+2023-06-21 10:28:20,393 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 166
+to() received an invalid combination of arguments - got (torch.tensortype), but expected one of:
+ * (torch.device device, torch.dtype dtype, bool non_blocking, bool copy, *, torch.memory_format memory_format)
+ * (torch.dtype dtype, bool non_blocking, bool copy, *, torch.memory_format memory_format)
+ * (Tensor tensor, bool non_blocking, bool copy, *, torch.memory_format memory_format)
+
+2023-07-09 15:31:33,316 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-07-09 16:53:42,852 - server_utils - ERROR - <class 'IndexError'>
+-file server.py
+--line 173
+Dimension out of range (expected to be in range of [-1, 0], but got 2)
+2023-07-09 17:06:05,739 - server_utils - ERROR - <class 'AttributeError'>
+-file server.py
+--line 86
+'tuple' object has no attribute 'shape'
+2023-07-09 17:07:25,830 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 144
+repeat_interleave() received an invalid combination of arguments - got (tuple, int, dim=int), but expected one of:
+ * (Tensor input, Tensor repeats, int dim, *, int output_size)
+ * (Tensor repeats, *, int output_size)
+      didn't match because some of the keywords were incorrect: dim
+ * (Tensor input, int repeats, int dim, *, int output_size)
+
+2023-07-09 17:10:28,599 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 144
+repeat_interleave() received an invalid combination of arguments - got (tuple, int, dim=int), but expected one of:
+ * (Tensor input, Tensor repeats, int dim, *, int output_size)
+ * (Tensor repeats, *, int output_size)
+      didn't match because some of the keywords were incorrect: dim
+ * (Tensor input, int repeats, int dim, *, int output_size)
+
+2023-07-09 17:12:17,006 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 144
+repeat_interleave() received an invalid combination of arguments - got (tuple, int, dim=int), but expected one of:
+ * (Tensor input, Tensor repeats, int dim, *, int output_size)
+ * (Tensor repeats, *, int output_size)
+      didn't match because some of the keywords were incorrect: dim
+ * (Tensor input, int repeats, int dim, *, int output_size)
+
+2023-07-09 17:13:58,124 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 144
+repeat_interleave() received an invalid combination of arguments - got (tuple, int, dim=int), but expected one of:
+ * (Tensor input, Tensor repeats, int dim, *, int output_size)
+ * (Tensor repeats, *, int output_size)
+      didn't match because some of the keywords were incorrect: dim
+ * (Tensor input, int repeats, int dim, *, int output_size)
+
+2023-07-09 17:15:06,438 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 173
+shape '[1, 64, 64]' is invalid for input of size 8192
+2023-07-09 17:44:45,055 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 78
+not enough values to unpack (expected 2, got 1)
+2023-07-09 17:44:47,678 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 142
+not enough values to unpack (expected 2, got 1)
+2023-07-09 17:47:50,766 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 78
+not enough values to unpack (expected 2, got 1)
+2023-07-09 17:47:53,413 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 142
+not enough values to unpack (expected 2, got 1)

@@ -4,7 +4,7 @@ from waitress import serve
 import numpy as np
 import os
 import sys
-import cv2
+import traceback
 import json
 import time
 import queue
@@ -75,7 +75,7 @@ def extract():
             image = utils.get_image(data["images"][image_id])
             with torch.no_grad():
                 predictor.set_image(image)
-            features = predictor.features
+            _, features = predictor.features
 
             positive_coord = coordinates["positive"]
             negative_coord = coordinates["negative"]
@@ -139,7 +139,7 @@ def generate(gen_type):
 
             image = utils.get_image(image_data)
             predictor.set_image(image)
-            features = predictor.features
+            _, features = predictor.features
 
             generated_masks = mask_generator.generate(image)
 
@@ -270,6 +270,7 @@ def generate(gen_type):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         error_text = f"{exc_type}\n-file {fname}\n--line {exc_tb.tb_lineno}\n{e}"
+        print(traceback.format_exc())
         logger.error(error_text)
 
     return jsonify({"error": error_text})
@@ -287,10 +288,11 @@ if __name__ == '__main__':
 
     sam = sam_model_registry[cfg.model](checkpoint=checkpoint)
     sam.to(device=cfg.device)
-    predictor = SamPredictor(sam)
+    predictor = SamPredictor(sam, preconv_features=True)
 
     mask_generator = SamAutomaticMaskGenerator(
         model=sam,
+        preconv_features=True,
         points_per_side=64,
         pred_iou_thresh=0.9,
         stability_score_thresh=0.92,

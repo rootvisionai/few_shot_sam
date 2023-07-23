@@ -16,5 +16,5 @@
 *.json
 *.onnx
 *.drawio
-/dev_gitignored/
+/dev/
 /frontend_python/
