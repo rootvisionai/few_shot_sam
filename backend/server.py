@@ -9,6 +9,7 @@ import json
 import time
 import queue
 
+import cv2
 import server_utils as utils
 import annotations
 from exact_solution import ExactSolution
@@ -138,10 +139,9 @@ def generate(gen_type):
             embedding_collection = []
 
             image = utils.get_image(image_data)
+            query_image_shape = image.shape
             predictor.set_image(image)
             _, features = predictor.features
-
-            generated_masks = mask_generator.generate(image)
 
             for label_int, label_str in enumerate(support_package, start=1):
 
@@ -189,22 +189,17 @@ def generate(gen_type):
                     if gen_type == "point":
                         return jsonify({'matching_points': matching_points, "error": error_text})
 
-                    matching_bboxes_ = [
-                        {
-                            "id": cnt,
-                            "bbox": [elm["bbox"][0], elm["bbox"][1], elm["bbox"][0] + elm["bbox"][2], elm["bbox"][1] + elm["bbox"][3]]
-                        }
-                        for cnt, elm in enumerate(generated_masks) if elm["segmentation"][int(xy["y"]), int(xy["x"])]]
-
-                    matching_bboxes = matching_bboxes + matching_bboxes_
-
-            unique_match_ids = np.unique([elm["id"] for elm in matching_bboxes])
-            matching_bboxes = {elm["id"]: elm["bbox"] for elm in matching_bboxes if elm["id"] in unique_match_ids}
-
-            for label_int, label_str in enumerate(support_package, start=1):
-                for match_id in matching_bboxes:
-                    mask_ = generated_masks[int(match_id)]["segmentation"] * 1
-                    mask_ = mask_.astype(np.int8)
+                    l_ = np.ones((1,))
+                    t0 = time.time()
+                    mask_, scores, logits = predictor.predict(
+                        point_coords=np.array([[xy["x"], xy["y"]]]).astype(int),
+                        point_labels=l_,
+                        multimask_output=True,
+                    )
+                    t1 = time.time()
+                    print(f"MASK GEN INFERENCE TIME: {t1 - t0}")
+                    mask_ = mask_.astype(np.uint8)
+                    mask_ = cv2.resize(mask_[0], (query_image_shape[1], query_image_shape[0]))
 
                     polygons, points_ = annotations.generate_polygons_from_mask(
                         polygons=polygons,
@@ -213,13 +208,15 @@ def generate(gen_type):
                         polygon_resolution=cfg.labeling.polygon_resolution
                     )
 
-                    masks.append(mask_)
+                    for pt in points_:
 
-                    bboxes.append({
-                        "coordinates": matching_bboxes[match_id],
-                        "format": "xyxy",
-                        "label": label_str
-                    })
+                        bboxes.append({
+                            "coordinates": [int(pt[:, 0].min()), int(pt[:, 1].min()), int(pt[:, 0].max()), int(pt[:, 1].max())],
+                            "format": "xyxy",
+                            "label": label_str
+                        })
+
+                    masks.append(mask_)
 
                     labels_str.append(label_str)
                     labels_int.append(label_int)
@@ -289,17 +286,6 @@ if __name__ == '__main__':
     sam = sam_model_registry[cfg.model](checkpoint=checkpoint)
     sam.to(device=cfg.device)
     predictor = SamPredictor(sam, preconv_features=True)
-
-    mask_generator = SamAutomaticMaskGenerator(
-        model=sam,
-        preconv_features=True,
-        points_per_side=64,
-        pred_iou_thresh=0.9,
-        stability_score_thresh=0.92,
-        crop_n_layers=1,
-        crop_n_points_downscale_factor=2,
-        min_mask_region_area=100,  # Requires open-cv to run post-processing
-    )
     
     if not os.path.isdir("./backend/logs/"):
         os.makedirs("./backend/logs/")
@@ -309,26 +295,6 @@ if __name__ == '__main__':
             fp.write("")
     
     logger = utils.get_logger(log_path='./backend/logs/file.log')
-
-    # forwarder_extract = Forwarder(
-    #     in_queue=ExtractInQueue,
-    #     out_dict=ExtractOutDict,
-    #     freq=10
-    # )
-    #
-    # forwarder_generate = Forwarder(
-    #     in_queue=GenerateInQueue,
-    #     out_dict=GenerateOutDict,
-    #     freq=10
-    # )
-    #
-    # fps = []
-    # fps.append(threading.Thread(target=run_forwarder, args=(forwarder_extract,)))
-    # fps.append(threading.Thread(target=run_forwarder, args=(forwarder_generate,)))
-    #
-    # for fp in fps:
-    #     fp.daemon = True
-    #     fp.start()
 
     # app.run(host = "0.0.0.0", port=8080, debug=False)
     print("SERVER STARTING...")

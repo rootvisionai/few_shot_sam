@@ -383,3 +383,24 @@ not enough values to unpack (expected 2, got 1)
 -file server.py
 --line 142
 not enough values to unpack (expected 2, got 1)
+2023-07-23 23:06:58,600 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 211
+setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (2,) + inhomogeneous part.
+2023-07-23 23:26:27,032 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 205
+too many values to unpack (expected 2)
+2023-07-23 23:27:00,571 - server_utils - ERROR - <class 'IndexError'>
+-file server.py
+--line 215
+too many indices for array: array is 1-dimensional, but 2 were indexed
+2023-07-23 23:28:47,726 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-07-23 23:30:29,986 - server_utils - ERROR - <class 'NameError'>
+-file server.py
+--line 219
+name 'generated_masks' is not defined
+2023-07-23 23:30:57,066 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 256
+Object of type int32 is not JSON serializable
