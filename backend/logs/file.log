@@ -187,3 +187,261 @@ repeat_interleave() received an invalid combination of arguments - got (NoneType
 -file server.py
 --line 123
 'image_path'
+2023-06-16 09:31:17,785 - server_utils - ERROR - <class 'cv2.error'>
+-file server.py
+--line 205
+OpenCV(4.7.0) :-1: error: (-5:Bad argument) in function 'imwrite'
+> Overload resolution failed:
+>  - imwrite() missing required argument 'img' (pos 2)
+>  - imwrite() missing required argument 'img' (pos 2)
+
+2023-06-18 13:08:29,769 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-06-18 13:09:07,264 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-06-18 13:30:31,506 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 164
+stack(): argument 'tensors' (position 1) must be tuple of Tensors, not Tensor
+2023-06-18 13:31:23,511 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 164
+stack(): argument 'tensors' (position 1) must be tuple of Tensors, not Tensor
+2023-06-18 13:38:25,410 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 164
+stack(): argument 'tensors' (position 1) must be tuple of Tensors, not Tensor
+2023-06-18 16:14:17,440 - server_utils - ERROR - <class 'AttributeError'>
+-file server.py
+--line 86
+shape
+2023-06-18 16:30:00,838 - server_utils - ERROR - <class 'AttributeError'>
+-file server.py
+--line 87
+shape
+2023-06-18 16:30:02,893 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 176
+not enough values to unpack (expected 4, got 3)
+2023-06-18 16:45:12,270 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 180
+not enough values to unpack (expected 4, got 3)
+2023-06-18 18:07:02,734 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 180
+not enough values to unpack (expected 4, got 3)
+2023-06-18 18:10:00,569 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 180
+Input type (torch.cuda.FloatTensor) and weight type (torch.FloatTensor) should be the same
+2023-06-18 18:21:25,814 - server_utils - ERROR - <class 'IndexError'>
+-file server.py
+--line 213
+tuple index out of range
+2023-06-18 18:22:54,478 - server_utils - ERROR - <class 'IndexError'>
+-file server.py
+--line 213
+tuple index out of range
+2023-06-18 18:25:47,706 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 219
+mat1 and mat2 shapes cannot be multiplied (6144x16 and 384x3)
+2023-06-18 18:31:18,395 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 209
+stack(): argument 'tensors' (position 1) must be tuple of Tensors, not Tensor
+2023-06-18 18:33:31,478 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 209
+stack(): argument 'tensors' (position 1) must be tuple of Tensors, not Tensor
+2023-06-18 18:38:16,040 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-06-18 18:53:49,032 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-06-19 00:54:46,039 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-06-19 00:58:11,029 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-06-19 08:58:31,963 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-06-19 09:44:46,373 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 245
+keywords must be strings
+2023-06-20 15:42:13,948 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 206
+int() argument must be a string, a bytes-like object or a real number, not 'dict'
+2023-06-20 15:51:50,701 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 173
+result type Float can't be cast to the desired output type Long
+2023-06-20 17:24:52,125 - server_utils - ERROR - <class 'IndexError'>
+-file server.py
+--line 192
+only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean arrays are valid indices
+2023-06-21 09:53:35,865 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 166
+SGD.__init__() missing 1 required positional argument: 'params'
+2023-06-21 09:54:29,877 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 166
+SGD.__init__() missing 1 required positional argument: 'params'
+2023-06-21 09:55:19,811 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 166
+SGD.__init__() missing 1 required positional argument: 'params'
+2023-06-21 09:57:55,476 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 166
+SGD.__init__() missing 1 required positional argument: 'params'
+2023-06-21 10:00:03,784 - server_utils - ERROR - <class 'AttributeError'>
+-file server.py
+--line 166
+'ExactSolution' object has no attribute 'linear'
+2023-06-21 10:01:00,648 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 166
+'bool' object is not callable
+2023-06-21 10:14:29,460 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 166
+'bool' object is not callable
+2023-06-21 10:24:17,893 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 166
+expected scalar type Double but found Float
+2023-06-21 10:25:31,981 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 166
+"nll_loss_forward_reduce_cuda_kernel_2d_index" not implemented for 'Int'
+2023-06-21 10:28:20,393 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 166
+to() received an invalid combination of arguments - got (torch.tensortype), but expected one of:
+ * (torch.device device, torch.dtype dtype, bool non_blocking, bool copy, *, torch.memory_format memory_format)
+ * (torch.dtype dtype, bool non_blocking, bool copy, *, torch.memory_format memory_format)
+ * (Tensor tensor, bool non_blocking, bool copy, *, torch.memory_format memory_format)
+
+2023-07-09 15:31:33,316 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-07-09 16:53:42,852 - server_utils - ERROR - <class 'IndexError'>
+-file server.py
+--line 173
+Dimension out of range (expected to be in range of [-1, 0], but got 2)
+2023-07-09 17:06:05,739 - server_utils - ERROR - <class 'AttributeError'>
+-file server.py
+--line 86
+'tuple' object has no attribute 'shape'
+2023-07-09 17:07:25,830 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 144
+repeat_interleave() received an invalid combination of arguments - got (tuple, int, dim=int), but expected one of:
+ * (Tensor input, Tensor repeats, int dim, *, int output_size)
+ * (Tensor repeats, *, int output_size)
+      didn't match because some of the keywords were incorrect: dim
+ * (Tensor input, int repeats, int dim, *, int output_size)
+
+2023-07-09 17:10:28,599 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 144
+repeat_interleave() received an invalid combination of arguments - got (tuple, int, dim=int), but expected one of:
+ * (Tensor input, Tensor repeats, int dim, *, int output_size)
+ * (Tensor repeats, *, int output_size)
+      didn't match because some of the keywords were incorrect: dim
+ * (Tensor input, int repeats, int dim, *, int output_size)
+
+2023-07-09 17:12:17,006 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 144
+repeat_interleave() received an invalid combination of arguments - got (tuple, int, dim=int), but expected one of:
+ * (Tensor input, Tensor repeats, int dim, *, int output_size)
+ * (Tensor repeats, *, int output_size)
+      didn't match because some of the keywords were incorrect: dim
+ * (Tensor input, int repeats, int dim, *, int output_size)
+
+2023-07-09 17:13:58,124 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 144
+repeat_interleave() received an invalid combination of arguments - got (tuple, int, dim=int), but expected one of:
+ * (Tensor input, Tensor repeats, int dim, *, int output_size)
+ * (Tensor repeats, *, int output_size)
+      didn't match because some of the keywords were incorrect: dim
+ * (Tensor input, int repeats, int dim, *, int output_size)
+
+2023-07-09 17:15:06,438 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 173
+shape '[1, 64, 64]' is invalid for input of size 8192
+2023-07-09 17:44:45,055 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 78
+not enough values to unpack (expected 2, got 1)
+2023-07-09 17:44:47,678 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 142
+not enough values to unpack (expected 2, got 1)
+2023-07-09 17:47:50,766 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 78
+not enough values to unpack (expected 2, got 1)
+2023-07-09 17:47:53,413 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 142
+not enough values to unpack (expected 2, got 1)
+2023-07-23 23:06:58,600 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 211
+setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (2,) + inhomogeneous part.
+2023-07-23 23:26:27,032 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 205
+too many values to unpack (expected 2)
+2023-07-23 23:27:00,571 - server_utils - ERROR - <class 'IndexError'>
+-file server.py
+--line 215
+too many indices for array: array is 1-dimensional, but 2 were indexed
+2023-07-23 23:28:47,726 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-07-23 23:30:29,986 - server_utils - ERROR - <class 'NameError'>
+-file server.py
+--line 219
+name 'generated_masks' is not defined
+2023-07-23 23:30:57,066 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 256
+Object of type int32 is not JSON serializable
+2023-07-23 23:48:38,345 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 75
+not enough values to unpack (expected 2, got 1)
+2023-07-23 23:48:40,966 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 140
+not enough values to unpack (expected 2, got 1)
+2023-07-23 23:49:26,722 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 75
+not enough values to unpack (expected 2, got 1)
+2023-07-23 23:49:29,337 - server_utils - ERROR - <class 'AttributeError'>
+-file server.py
+--line 162
+'list' object has no attribute 'norm'
+2023-07-23 23:50:14,078 - server_utils - ERROR - <class 'ValueError'>
+-file server.py
+--line 75
+not enough values to unpack (expected 2, got 1)
+2023-07-23 23:59:24,235 - server_utils - ERROR - <class 'TypeError'>
+-file server.py
+--line 169
+can't convert cuda:0 device type tensor to numpy. Use Tensor.cpu() to copy the tensor to host memory first.
+2023-07-24 00:08:36,355 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 169
+Expected 3D (unbatched) or 4D (batched) input to conv2d, but got input of size: [64, 64]
+2023-07-24 00:09:47,127 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 169
+Input type (torch.cuda.LongTensor) and weight type (torch.FloatTensor) should be the same
+2023-07-24 00:10:29,927 - server_utils - ERROR - <class 'RuntimeError'>
+-file server.py
+--line 169
+Input type (torch.cuda.LongTensor) and weight type (torch.cuda.FloatTensor) should be the same
+2023-07-24 00:13:24,336 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-07-24 00:14:05,916 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-07-24 00:15:43,198 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-07-24 00:19:44,234 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.
+2023-07-24 00:21:20,447 - server_utils - ERROR - NO MASK IS GENERATED FOR THIS IMAGE BASED ON THE GIVEN COORDINATES.

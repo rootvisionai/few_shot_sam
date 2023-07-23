@@ -10,9 +10,10 @@ labeling:
   bounding_box: 1
   polygon_resolution: 0.3
 
-window_size: [512, 512]
+window_size: [1024, 1024]
+preconv_features: False
 model: vit_h # Faster <<< vit_b, vit_l, vit_h >>> More accurate
-threshold: 0.9
+threshold: 0.75
 device: "cuda"
 COLORMAP: [[255, 0, 121],[101, 0, 255],[253, 255, 0],[0, 49, 255],[0, 186, 255],[0, 255, 39],[215, 0, 255],[0, 24, 255],[0, 157, 255],[0, 131, 255]]
 

@@ -4,18 +4,17 @@ from waitress import serve
 import numpy as np
 import os
 import sys
-import cv2
+import traceback
 import json
 import time
 import queue
-# import threading
 
+import cv2
 import server_utils as utils
 import annotations
 from exact_solution import ExactSolution
-# from forwarder import Forwarder
 
-from segment_anything import sam_model_registry, SamPredictor
+from segment_anything import sam_model_registry, SamPredictor, SamAutomaticMaskGenerator
 
 
 model_to_checkpoint_map = {
@@ -24,10 +23,6 @@ model_to_checkpoint_map = {
     "vit_h": "./checkpoints/sam_vit_h_4b8939.pth",
 }
 base = "localhost:8080"
-ExtractInQueue = queue.Queue(maxsize=10)
-ExtractOutDict = {}
-GenerateInQueue = queue.Queue(maxsize=4)
-GenerateOutDict = {}
 app = Flask(__name__)
 
 @app.route('/health', methods=['GET'])
@@ -77,7 +72,7 @@ def extract():
             image = utils.get_image(data["images"][image_id])
             with torch.no_grad():
                 predictor.set_image(image)
-            features = predictor.features
+            _, features = predictor.features
 
             positive_coord = coordinates["positive"]
             negative_coord = coordinates["negative"]
@@ -130,57 +125,63 @@ def generate(gen_type):
     try:
         if gen_type in ["point", "annotation", "all"]:
             support_package = request.json['package']
+
             image_data = request.json['image']
             image_path = request.json['image_path']
-            for label_int, label_str in enumerate(support_package):
-                image = utils.get_image(image_data)
-                q_image_shape = image.shape
-                t0 = time.time()
-                predictor.set_image(image)
-                features = predictor.features
-                t1 = time.time()
-                print(f"SAM INFERENCE TIME: {t1-t0}")
-                linear_model_labels_int = []
-                embedding_collection = []
+
+            all_labels = {elm: i for i, elm in enumerate(support_package.keys(), start=1)}
+            all_labels["background"] = 0
+            linear_model_labels_int = []
+            embedding_collection = []
+
+            image = utils.get_image(image_data)
+            query_image_shape = image.shape
+            predictor.set_image(image)
+            _, features = predictor.features
+
+            for label_int, label_str in enumerate(support_package, start=1):
+
                 for i, embedding in enumerate(support_package[label_str]["positive"][0]):
                     embedding = np.array(embedding)
                     embedding = torch.from_numpy(embedding).to(cfg.device)[0]
 
-                    linear_model_labels_int.append(1)
+                    linear_model_labels_int.append(all_labels[label_str])
                     embedding_collection.append(embedding)
 
                 for i, embedding in enumerate(support_package[label_str]["negative"][0]):
                     embedding = np.array(embedding)
                     embedding = torch.from_numpy(embedding).to(cfg.device)[0]
 
-                    linear_model_labels_int.append(0)
+                    linear_model_labels_int.append(all_labels["background"])
                     embedding_collection.append(embedding)
 
                 embedding_collection = torch.stack(embedding_collection, dim=0)
                 linear_model_labels_int = np.array(linear_model_labels_int)
 
-                t0 = time.time()
-                linear_model = ExactSolution(
-                    device=cfg.device,
-                    embedding_collection=embedding_collection,
-                    labels_int=linear_model_labels_int,
-                    threshold=cfg.threshold
-                )
-                predictions = linear_model.infer(features)
-                t1 = time.time()
-                print(f"EXACT SOLUTION INFERENCE TIME: {t1 - t0}")
+            t0 = time.time()
+            linear_model = ExactSolution(
+                device=cfg.device,
+                embedding_collection=embedding_collection,
+                labels_int=linear_model_labels_int,
+                threshold=cfg.threshold
+            )
 
-                yx_multi = (predictions == 1.).nonzero()  # this can be changed later
+            predictions = linear_model.infer(features)
+            t1 = time.time()
+            print(f"EXACT SOLUTION INFERENCE TIME: {t1 - t0}")
 
+            for label_int, label_str in enumerate(support_package, start=1):
+
+                threshold = predictions.flatten().sort(descending=True)[0][0:5]
+                print(f"HIGHEST 5 CONFIDENCES: {threshold}")
+                threshold = threshold[4]
+                yx_multi = (predictions >= threshold).nonzero()
                 for yx in yx_multi:
-                    t0 = time.time()
                     xy = utils.adapt_point(
                         {"x": yx[1].item(), "y": yx[0].item()},
                         initial_shape=features.shape[-2:],
                         final_shape=image.shape[0:2]
                     )
-                    t1 = time.time()
-                    print(f"ADAPT POINT TIME: {t1 - t0}")
 
                     matching_points[label_str] = {"x": xy["x"], "y": xy["y"]}
                     if gen_type == "point":
@@ -196,7 +197,7 @@ def generate(gen_type):
                     t1 = time.time()
                     print(f"MASK GEN INFERENCE TIME: {t1 - t0}")
                     mask_ = mask_.astype(np.uint8)
-                    mask_ = cv2.resize(mask_[0], (q_image_shape[1], q_image_shape[0]))
+                    mask_ = cv2.resize(mask_[0], (query_image_shape[1], query_image_shape[0]))
 
                     polygons, points_ = annotations.generate_polygons_from_mask(
                         polygons=polygons,
@@ -205,29 +206,17 @@ def generate(gen_type):
                         polygon_resolution=cfg.labeling.polygon_resolution
                     )
 
+                    for pt in points_:
+                        bboxes.append({
+                            "coordinates": [int(pt[:, 0].min()), int(pt[:, 1].min()), int(pt[:, 0].max()), int(pt[:, 1].max())],
+                            "format": "xyxy",
+                            "label": label_str
+                        })
+                        
                     masks.append(mask_)
 
-                    t0 = time.time()
-                    # create xml file from the coordinates
-                    if len(points_)>0:
-                        for cnt_p, pts_ in enumerate(points_):
-                            # coordinates = np.nonzero(mask_)
-                            if len(pts_) >= 3:
-                                print(f"---> Finding bounding box: {cnt_p}/{len(points_)}")
-                                pts = np.array([np.array(pt) for pt in pts_])
-                                x0, x1 ,y0, y1= pts[:, 0].min(), pts[:, 0].max(), pts[:, 1].min(), pts[:, 1].max()
-                                bboxes.append({
-                                    "coordinates": [int(x0), int(y0), int(x1), int(y1)],
-                                    "format": "xyxy",
-                                    "label": "label_str"
-                                })
-
-                                labels_str.append(label_str)
-                                labels_int.append(label_int)
-
-                    t1 = time.time()
-                    print(f"BBOX GENERATION TIME: {t1 - t0}")
-
+                    labels_str.append(label_str)
+                    labels_int.append(label_int)
 
             if len(masks) > 0:
                 print("---> Merging masks")
@@ -275,54 +264,10 @@ def generate(gen_type):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         error_text = f"{exc_type}\n-file {fname}\n--line {exc_tb.tb_lineno}\n{e}"
+        print(traceback.format_exc())
         logger.error(error_text)
 
     return jsonify({"error": error_text})
-
-# @app.route('/forwarder/extract_features', methods=['POST'])
-# def forwarder_extract():
-#
-#     timestamp = time.time()
-#     if not ExtractInQueue.full():
-#         ExtractInQueue.put({
-#             "url": f"http://{base}/extract_features",
-#             "data": request.json,
-#             "timestamp": timestamp
-#         })
-#     else:
-#         return json.dumps({"warning": "Queue is full, please wait and try again."})
-#
-#     while True:
-#         if timestamp in ExtractOutDict:
-#             response = ExtractOutDict[timestamp]["data"]
-#             del ExtractOutDict[timestamp]
-#             break
-#
-#     return response
-#
-# @app.route('/forwarder/generate/<gen_type>', methods=['POST'])
-# def forwarder_generate(gen_type):
-#
-#     timestamp = time.time()
-#     if not GenerateInQueue.full():
-#         GenerateInQueue.put({
-#             "url": f"http://{base}/generate/{gen_type}",
-#             "data": request.json,
-#             "timestamp": timestamp
-#         })
-#     else:
-#         return json.dumps({"warning": "Queue is full, please wait and try again."})
-#
-#     while True:
-#         if timestamp in GenerateOutDict:
-#             response = GenerateOutDict[timestamp]["data"]
-#             del GenerateOutDict[timestamp]
-#             break
-#
-#     return response
-
-def run_forwarder(forwarder):
-    forwarder.run()
 
 
 if __name__ == '__main__':
@@ -333,7 +278,7 @@ if __name__ == '__main__':
 
     sam = sam_model_registry[cfg.model](checkpoint=checkpoint)
     sam.to(device=cfg.device)
-    predictor = SamPredictor(sam)
+    predictor = SamPredictor(sam, preconv_features=True)
     
     if not os.path.isdir("./backend/logs/"):
         os.makedirs("./backend/logs/")
@@ -344,25 +289,6 @@ if __name__ == '__main__':
     
     logger = utils.get_logger(log_path='./backend/logs/file.log')
 
-    # forwarder_extract = Forwarder(
-    #     in_queue=ExtractInQueue,
-    #     out_dict=ExtractOutDict,
-    #     freq=10
-    # )
-    #
-    # forwarder_generate = Forwarder(
-    #     in_queue=GenerateInQueue,
-    #     out_dict=GenerateOutDict,
-    #     freq=10
-    # )
-    #
-    # fps = []
-    # fps.append(threading.Thread(target=run_forwarder, args=(forwarder_extract,)))
-    # fps.append(threading.Thread(target=run_forwarder, args=(forwarder_generate,)))
-    #
-    # for fp in fps:
-    #     fp.daemon = True
-    #     fp.start()
-
     # app.run(host = "0.0.0.0", port=8080, debug=False)
+    print("SERVER STARTING...")
     serve(app, host="0.0.0.0", port=8080)

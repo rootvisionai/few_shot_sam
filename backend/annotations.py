@@ -107,16 +107,16 @@ def generate_polygons_from_mask(polygons, mask, label, polygon_resolution):
 
     # Generate polygons from the contours
     points_ = []
-
     instances, num_instances = find_instances(mask)
     for k in range(1, num_instances+1, 1):
         instance = ((instances == k)*1).astype(np.uint8)
 
         # Find the contours in the binary mask
         contours, _ = cv2.findContours(instance, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        filtered_contours = [contour for contour in contours if cv2.contourArea(contour) >= 100]
 
-        for i, contour in enumerate(contours):
-            if int(len(contour)*polygon_resolution)>0:
+        for i, contour in enumerate(filtered_contours):
+            if int(len(contour)*polygon_resolution) > 2:
                 points = contour.squeeze()[np.arange(0,
                                                      len(contour),
                                                      int(len(contour)/int(len(contour)*polygon_resolution))
@@ -128,7 +128,7 @@ def generate_polygons_from_mask(polygons, mask, label, polygon_resolution):
                     "shape_type": "polygon",
                     "flags": {}
                 })
-                points_.append(points)
+                points_.append(np.array(points))
 
     return polygons, points_
 
