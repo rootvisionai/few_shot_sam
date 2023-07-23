@@ -36,15 +36,27 @@ More accurate <<< [VIT-H](https://dl.fbaipublicfiles.com/segment_anything/sam_vi
 | [VIT-L](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth) 
 | [VIT-B](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth) >>> Faster
 
-## RUN
+## START SERVER
 
 Before you start the application, create a folder to put your
 support images that will be used to learn from, then create a 
 folder to put your query images that are going to be labeled.
 Put the relative path to the folders to support_dir and query_dir in config.yml.
-Then, let the magic begin ...
+
+#### To create request json that will be sent to server
+```commandline
+python interface.py  
 ```
-python main.py
+then adjust make_request.py according to your images and paths
+
+Finally, run the server ...
+```
+python backend/server.py
+```
+
+and make request while server.py is running
+```commandline
+python make_request.py
 ```
 
 ## DOCKERIZATION

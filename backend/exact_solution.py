@@ -67,18 +67,11 @@ class ExactSolution(torch.nn.Module):
             query_features = l2_norm(query_features)[0]
             out = self.forward(query_features.float())
 
-            torchvision.utils.save_image(out[:, 1].reshape(b, h, w).squeeze(0).cpu().float(), "./intermediate_preds.png")
-
-            # apply adaptive threshold
-            self.threshold = self.threshold if self.threshold <= out[:, 1].max() else out[:, 1].max()
-            print(f"ADAPTIVE THRESHOLD: {self.threshold}")
-            out = torch.where(out >= self.threshold, 1, 0)
-
             # get indexes of maximums
-            predictions = out.argmax(dim=-1)
+            predictions = out[:, 1]
 
-            predictions = predictions.reshape(b, h, w).squeeze(0)
-            torchvision.utils.save_image(predictions.cpu().float(), "./intermediate_mask.png")
+            predictions = predictions.reshape(h, w)
+            torchvision.utils.save_image(predictions.cpu().float(), "./intermediate_preds.png")
 
         return predictions
 

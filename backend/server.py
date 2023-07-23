@@ -23,10 +23,6 @@ model_to_checkpoint_map = {
     "vit_h": "./checkpoints/sam_vit_h_4b8939.pth",
 }
 base = "localhost:8080"
-ExtractInQueue = queue.Queue(maxsize=10)
-ExtractOutDict = {}
-GenerateInQueue = queue.Queue(maxsize=4)
-GenerateOutDict = {}
 app = Flask(__name__)
 
 @app.route('/health', methods=['GET'])
@@ -174,10 +170,12 @@ def generate(gen_type):
             t1 = time.time()
             print(f"EXACT SOLUTION INFERENCE TIME: {t1 - t0}")
 
-            matching_bboxes = []
             for label_int, label_str in enumerate(support_package, start=1):
 
-                yx_multi = (predictions == label_int).nonzero()
+                threshold = predictions.flatten().sort(descending=True)[0][0:5]
+                print(f"HIGHEST 5 CONFIDENCES: {threshold}")
+                threshold = threshold[4]
+                yx_multi = (predictions >= threshold).nonzero()
                 for yx in yx_multi:
                     xy = utils.adapt_point(
                         {"x": yx[1].item(), "y": yx[0].item()},
@@ -271,10 +269,6 @@ def generate(gen_type):
         logger.error(error_text)
 
     return jsonify({"error": error_text})
-
-
-def run_forwarder(forwarder):
-    forwarder.run()
 
 
 if __name__ == '__main__':
