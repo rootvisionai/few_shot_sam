@@ -84,7 +84,7 @@ if __name__ == "__main__":
     annotations = []
     encoded_images = []
     image_paths = []
-    for image_id, image_path in enumerate(glob.glob(os.path.join("..", "support_images", "*.jpg"))):
+    for image_id, image_path in enumerate(glob.glob(os.path.join("..", "support_images", "*.tiff"))):
         init_image = utils.import_image(image_path)
         image_shape = init_image.shape
         window_size = (512, 512)

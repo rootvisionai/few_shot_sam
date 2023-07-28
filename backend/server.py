@@ -174,7 +174,7 @@ def generate(gen_type):
 
                 threshold = predictions.flatten().sort(descending=True)[0][0:5]
                 print(f"HIGHEST 5 CONFIDENCES: {threshold}")
-                threshold = threshold[4]
+                threshold = threshold[2]
                 yx_multi = (predictions >= threshold).nonzero()
                 for yx in yx_multi:
                     xy = utils.adapt_point(

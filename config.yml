@@ -2,7 +2,7 @@ data:
   support_dir: "support_images"
   query_dir: "query_images"
   output_dir: "results"
-  format: "jpg"
+  format: "tiff"
 
 labeling:
   mask: 1

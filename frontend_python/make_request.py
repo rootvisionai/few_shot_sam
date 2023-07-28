@@ -26,7 +26,7 @@ response = requests.post(url, data=json.dumps(data_json), headers=headers)
 t1 = time.time()
 print(response.text)
 data_json = json.loads(response.text)
-image_path = "../query_images/bmw_i20_s.jpg"
+image_path = "../query_images/Basler_acA2040-55uc__24274642__20230712_134109715_0017.tiff"
 data_json["image_path"] = image_path
 init_image = utils.import_image(image_path)
 data_json["image"] = utils.numpy_to_base64(init_image)
@@ -57,7 +57,7 @@ except:
     print(data_json)
 
 # save annotation
-with open("../results/bmw_i20_s.json", "w") as fp:
+with open("../results/Basler_acA2040-55uc__24274642__20230712_134109715_0017.json", "w") as fp:
     json.dump(data_json["coco_json"], fp, indent=4)
 
 print(f"Request.1 Time: {t1-t0} | Request.2 Time: {t2-t1}")
