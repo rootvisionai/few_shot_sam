@@ -16,5 +16,5 @@
 *.json
 *.onnx
 *.drawio
-/dev/
-/frontend_python/
+/dev_gitignored/
+!frontend_python/make_request_local.py
