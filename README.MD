@@ -1,3 +1,5 @@
+This project is deprecated and will not be updated anymore. The project continues with this repository: https://github.com/rootvisionai/dml_segmentation
+
 # FEWSAM Few-shot Segmentation tool based on Segment Anything
 
 **[Segment Anything](https://github.com/facebookresearch/segment-anything)**
